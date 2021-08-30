@@ -1,0 +1,18 @@
+{
+  "appCredentials": {
+    "client_id": "964845033900-u7bgtu4vdinaq0vu4vb5dricvio12tar.apps.googleusercontent.com",
+    "project_id": "bitflix-321117",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret": "0XP1iSpTzEYuK5Z97sehN2Lm",
+    "redirect_uris": ["http://localhost:5000"]
+  },
+  "token": {
+    "access_token": "ya29.a0ARrdaM-NyJE7VJMNKOlfzXWcDmRh8GQaKYOHSVGlHlhe1izd6S6JhKTpPJNUxnSc4aU8eIRy0-7cwD4PlyN9WpRO17rKuAT7ydnm3ScXrhV6dG956HpSJ1tt7VjgdUSpFdNyYdDO0CRWyhUVq_8jGwROPr01",
+    "refresh_token": "1//0gNQTPscbsn6WCgYIARAAGBASNwF-L9IrHeJzzFZKymX5goOf0wDXeZvQHFZHP4BMohKnYy39Uiefyt3gANDSwq1Zq1EFCgQSSWI",
+    "scope": "https://www.googleapis.com/auth/drive",
+    "token_type": "Bearer",
+    "expiry_date": 1630265945478
+  }
+}
