@@ -32,6 +32,7 @@ class DriveAPI {
     }
   };
 
+  // redundant
   getRange = async (range, file) => {
     const videoObj = {
       mimeType: '',
@@ -54,31 +55,40 @@ class DriveAPI {
   };
 
   streamFile = async (id, res, range) => {
-    const file = await this.getFile(id);
-    if (file) {
-      const { start, end, chunkSize, size, mimeType } = await this.getRange(range, file);
+    // const file = await this.getFile(id);
+    if (id) {
+      // const { start, end, chunkSize, size, mimeType } = await this.getRange(range, file);
 
-      res.writeHead(206, {
-        'Content-Range': `bytes ${start}-${end}/${size}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': chunkSize,
-        'Content-Type': mimeType,
-      });
+      // res.writeHead(206, {
+      //   'Content-Range': `bytes ${start}-${end}/${size}`,
+      //   'Accept-Ranges': 'bytes',
+      //   'Content-Length': chunkSize,
+      //   'Content-Type': mimeType,
+      //   'Cache-Control': 'public, max-age=3600',
+      // });
 
-      const { data } = await this.drive.files.get(
+      const resp = await this.drive.files.get(
         {
           fileId: id,
           alt: 'media',
           supportsAllDrives: true,
         },
-        { responseType: 'stream', headers: { Range: `bytes=${start}-${end}` } }
+        { responseType: 'stream', headers: { Range: range } }
       );
+      // keeps the connection alive
+      resp.headers.connection = 'keep-alive';
+      // delete this header to avoid downloading the file
+      delete resp.headers['content-disposition'];
 
-      data.pipe(res);
+      // this header does nothing currently
+      resp.headers['cache-control'] = 'public, max-age=3600';
+
+      res.writeHead(206, resp.headers);
+      resp.data.pipe(res);
     } else
       res.status(404).json({
         success: false,
-        message: 'File no longer exists.',
+        message: 'No fileId provided',
       });
   };
 
