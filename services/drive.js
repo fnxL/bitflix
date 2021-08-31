@@ -1,6 +1,7 @@
 const { google } = require('googleapis');
 const config = require('config');
-
+const serverIp =
+  process.env.NODE_ENV === 'development' ? process.env.SERVER_IP_DEV : process.env.SERVER_IP_PROD;
 class DriveAPI {
   constructor() {
     if (config.has('token')) {
@@ -19,11 +20,12 @@ class DriveAPI {
       const { data } = await this.drive.files.get({
         fileId: id,
         fields: 'id, name, size, mimeType',
+        supportsAllDrives: true,
       });
 
       return data;
     } catch (error) {
-      throw new Error(error);
+      console.log(error);
     }
   };
 
@@ -61,6 +63,7 @@ class DriveAPI {
         {
           fileId: id,
           alt: 'media',
+          supportsAllDrives: true,
         },
         { responseType: 'stream', headers: { Range: `bytes=${start}-${end}` } }
       );
@@ -71,6 +74,42 @@ class DriveAPI {
         success: false,
         message: 'File no longer exists.',
       });
+  };
+  // streamLinks -> wrapperFunc -> getStreamLinks
+  /*
+    linkformat = ${serverIp}/api/media/videoplayback?id=1Q_kA1j1LifWbf-3YFKmp_K-oL3sdD6x2x
+    returns {
+      "720": [],
+      "1080": [strings], //10 links
+      "2160": []
+    }
+
+     @dec generate stream links of various quality by default.
+     @params fileName - `<movieName> (releaseYear)`
+  */
+  convertIdsToLink = (movieDetails) => {
+    movieDetails.forEach((movie) => {
+      movie.link = `${serverIp}api/media/videoplayback?id=${movie['id']}`;
+      delete movie['id'];
+    });
+  };
+  getStreamLinks = async (fileName, pageSize = 10) => {
+    try {
+      let {
+        data: { files },
+      } = await this.drive.files.list({
+        corpora: 'allDrives',
+        includeItemsFromAllDrives: true,
+        supportsAllDrives: true,
+        pageSize: pageSize,
+        fields: 'files(id,name,size,mimeType)',
+        q: `mimeType='video/mp4' and fullText contains '${fileName}'`,
+      });
+      this.convertIdsToLink(files);
+      return files;
+    } catch (error) {
+      console.log(error);
+    }
   };
 }
 

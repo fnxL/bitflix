@@ -1,8 +1,8 @@
 const express = require('express');
 
 const router = express.Router();
-const streamRoutes = require('./api/stream');
+const mediaRoutes = require('./api/media');
 
-router.use('/api/stream', streamRoutes);
+router.use('/api/media', mediaRoutes);
 
 module.exports = router;

@@ -6,3 +6,7 @@
 - Installed [config](https://www.npmjs.com/package/config) npm module for easy access of credentials and token `/config`
 - Refactored existing routes.
 - Configured eslint with prettier (airbnb-styleguide)
+
+## TODO
+
+- Convert api credentials to env.
