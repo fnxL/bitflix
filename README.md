@@ -1,5 +1,11 @@
 //Write upcoming changelogs here.
 
+### Changelogs v0.0.2
+
+- Implemented streamlinks route to fetch streamlinks of movie/show name provided.
+- Created a validation service just in case of refresh_token expiry.
+- Fix ESLint config
+
 ### Changelogs v0.0.1
 
 - Created a driveAPI service in `/service/drive`
