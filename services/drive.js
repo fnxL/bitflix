@@ -1,7 +1,9 @@
 const { google } = require('googleapis');
 const config = require('config');
+
 const serverIp =
   process.env.NODE_ENV === 'development' ? process.env.SERVER_IP_DEV : process.env.SERVER_IP_PROD;
+
 class DriveAPI {
   constructor() {
     if (config.has('token')) {
@@ -26,6 +28,7 @@ class DriveAPI {
       return data;
     } catch (error) {
       console.log(error);
+      return error;
     }
   };
 
@@ -37,13 +40,16 @@ class DriveAPI {
       chunkSize: 0,
       size: 0,
     };
+
     videoObj.mimeType = file.mimeType;
     videoObj.size = parseInt(file.size, 10);
+
     const startEnd = range.replace(/bytes=/, '').split('-');
     videoObj.start = parseInt(startEnd[0], 10);
     videoObj.end = parseInt(startEnd[1], 10) > 0 ? parseInt(startEnd[1], 10) : videoObj.size - 1;
 
     videoObj.chunkSize = videoObj.end - videoObj.start + 1;
+
     return videoObj;
   };
 
@@ -75,6 +81,7 @@ class DriveAPI {
         message: 'File no longer exists.',
       });
   };
+
   // streamLinks -> wrapperFunc -> getStreamLinks
   /*
     linkformat = ${serverIp}/api/media/videoplayback?id=1Q_kA1j1LifWbf-3YFKmp_K-oL3sdD6x2x
@@ -84,18 +91,19 @@ class DriveAPI {
       "2160": []
     }
 
-     @dec generate stream links of various quality by default.
-     @params fileName - `<movieName> (releaseYear)`
+     @dec     generate stream links of various quality by default.
+     @params  fileName -> `MovieName releaseYear quality`
   */
   convertIdsToLink = (movieDetails) => {
     movieDetails.forEach((movie) => {
-      movie.link = `${serverIp}api/media/videoplayback?id=${movie['id']}`;
-      delete movie['id'];
+      movie.link = `${serverIp}api/media/videoplayback?id=${movie.id}`;
+      delete movie.id;
     });
   };
+
   getStreamLinks = async (fileName, pageSize = 10) => {
     try {
-      let {
+      const {
         data: { files },
       } = await this.drive.files.list({
         corpora: 'allDrives',
@@ -109,6 +117,7 @@ class DriveAPI {
       return files;
     } catch (error) {
       console.log(error);
+      return error;
     }
   };
 }

@@ -1,7 +1,12 @@
 const express = require('express');
 
 const router = express.Router();
-const mediaRoutes = require('./api/media');
+
+const validateAppRoutes = require('./api/validateAppRoutes');
+const mediaRoutes = require('./api/mediaRoutes');
+
+// Validate app
+router.use('/api/validateapp', validateAppRoutes);
 
 router.use('/api/media', mediaRoutes);
 

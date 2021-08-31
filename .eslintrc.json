@@ -10,13 +10,14 @@
     "prettier/prettier": [
       "error",
       {
-        "endOfLine": "off"
+        "endOfLine": "auto"
       }
     ],
     "camelcase": "off",
     "radix": ["warn"],
     "no-console": "off",
     "func-names": "off",
+    "no-param-reassign": "warn",
     "no-process-exit": "off",
     "object-shorthand": "off",
     "class-methods-use-this": "off",
