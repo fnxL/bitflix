@@ -16,7 +16,10 @@ class DriveAPI {
         redirect_uris[0]
       );
       oauth2Client.setCredentials(config.token);
-      this.drive = google.drive({ version: 'v3', auth: oauth2Client });
+      this.drive = google.drive({
+        version: 'v3',
+        auth: oauth2Client,
+      });
     } else {
       throw new Error('No auth tokens provided');
     }
@@ -82,7 +85,10 @@ class DriveAPI {
           alt: 'media',
           supportsAllDrives: true,
         },
-        { responseType: 'stream', headers: { Range: range } }
+        {
+          responseType: 'stream',
+          headers: { Range: range },
+        }
       );
       // keeps the connection alive
       resp.headers.connection = 'keep-alive';
@@ -131,7 +137,7 @@ class DriveAPI {
       }
       if (exclude) {
         exclude.forEach((item) => {
-          query = query.concat(` and not (${fieldName} contains '${item}')`);
+          query = query.concat(` and not ( ${fieldName} contains '${item}' )`);
         });
       }
     });
@@ -159,6 +165,8 @@ class DriveAPI {
           exclude: ['dual', 'hindi', 'sample', 'HEVC', 'x265'],
         },
       });
+      console.log(query);
+
       const {
         data: { files },
       } = await this.drive.files.list({

@@ -1,4 +1,7 @@
-//Write upcoming changelogs here.
+### Changelogs v0.0.3
+
+createQuery - filter video files based on conditions
+streamLinks will return videos which do not have 'hindi', 'x265', 'hevc', 'sample' in their fulltext by default.
 
 ### Changelogs v0.0.2
 
