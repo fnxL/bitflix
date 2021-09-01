@@ -2,13 +2,19 @@ const { google } = require('googleapis');
 const config = require('config');
 
 const serverIp =
-  process.env.NODE_ENV === 'development' ? process.env.SERVER_IP_DEV : process.env.SERVER_IP_PROD;
+  process.env.NODE_ENV === 'development'
+    ? process.env.SERVER_IP_DEV
+    : process.env.SERVER_IP_PROD;
 
 class DriveAPI {
   constructor() {
     if (config.has('token')) {
       const { client_secret, client_id, redirect_uris } = config.appCredentials;
-      const oauth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+      const oauth2Client = new google.auth.OAuth2(
+        client_id,
+        client_secret,
+        redirect_uris[0]
+      );
       oauth2Client.setCredentials(config.token);
       this.drive = google.drive({ version: 'v3', auth: oauth2Client });
     } else {
@@ -47,7 +53,10 @@ class DriveAPI {
 
     const startEnd = range.replace(/bytes=/, '').split('-');
     videoObj.start = parseInt(startEnd[0], 10);
-    videoObj.end = parseInt(startEnd[1], 10) > 0 ? parseInt(startEnd[1], 10) : videoObj.size - 1;
+    videoObj.end =
+      parseInt(startEnd[1], 10) > 0
+        ? parseInt(startEnd[1], 10)
+        : videoObj.size - 1;
 
     videoObj.chunkSize = videoObj.end - videoObj.start + 1;
 
@@ -111,8 +120,45 @@ class DriveAPI {
     });
   };
 
+  createQuery = (rules) => {
+    let query = '';
+    Object.keys(rules).forEach((fieldName) => {
+      const { contains, exclude } = rules[fieldName];
+      if (contains) {
+        contains.forEach((item) => {
+          query = query.concat(` and ${fieldName} contains '${item}'`);
+        });
+      }
+      if (exclude) {
+        exclude.forEach((item) => {
+          query = query.concat(` and not (${fieldName} contains '${item}')`);
+        });
+      }
+    });
+    query = query && query.slice(5);
+    return query;
+  };
+
   getStreamLinks = async (fileName, pageSize = 10) => {
+    /**
+     * for query use format :
+     * {
+     *    fieldName:{
+     *      contains:[string],
+     *      exclude:[string]
+     *    },
+     * }
+     */
     try {
+      const query = this.createQuery({
+        mimeType: {
+          contains: ['video/'],
+        },
+        fullText: {
+          contains: [`${fileName}`],
+          exclude: ['dual', 'hindi', 'sample', 'HEVC', 'x265'],
+        },
+      });
       const {
         data: { files },
       } = await this.drive.files.list({
@@ -121,7 +167,7 @@ class DriveAPI {
         supportsAllDrives: true,
         pageSize: pageSize,
         fields: 'files(id,name,size,mimeType)',
-        q: `mimeType='video/mp4' and fullText contains '${fileName}'`,
+        q: query,
       });
       this.convertIdsToLink(files);
       return files;
