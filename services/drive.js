@@ -173,7 +173,8 @@ class DriveAPI {
         includeItemsFromAllDrives: true,
         supportsAllDrives: true,
         pageSize: pageSize,
-        fields: 'files(id,name,size,mimeType)',
+        fields:
+          'files(id,name,mimeType,size,hasThumbnail,videoMediaMetadata(durationMillis))',
         q: query,
       });
       this.convertIdsToLink(files);
