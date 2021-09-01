@@ -7,12 +7,6 @@
   },
 
   "rules": {
-    "prettier/prettier": [
-      "error",
-      {
-        "endOfLine": "auto"
-      }
-    ],
     "camelcase": "off",
     "radix": ["warn"],
     "no-console": "off",
