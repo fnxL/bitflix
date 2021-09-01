@@ -1,4 +1,8 @@
 // use these functions to validate your app with googleapi client.
+const { google } = require('googleapis');
+
+const oauth2Client = new google.auth.oauth2Client();
+
 const authApp = (req, res) => {
   // check for existing tokens
   fs.readFile(token_path, (err, token) => {
