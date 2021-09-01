@@ -13,7 +13,6 @@ const videoplayback = async (req, res) => {
 };
 
 const retreiveStreamLinks = async (req, res) => {
-  console.log(req.query);
   if (req.query.fileName) {
     const links = await drive.getStreamLinks(req.query.fileName);
     res.json(links);

@@ -145,7 +145,7 @@ class DriveAPI {
     return query;
   };
 
-  getStreamLinks = async (fileName, pageSize = 10) => {
+  getStreamLinks = async (fileName, pageSize = 100) => {
     /**
      * for query use format :
      * {
@@ -165,7 +165,6 @@ class DriveAPI {
           exclude: ['dual', 'hindi', 'sample', 'HEVC', 'x265'],
         },
       });
-      console.log(query);
 
       const {
         data: { files },
