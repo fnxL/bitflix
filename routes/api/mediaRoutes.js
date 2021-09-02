@@ -1,7 +1,10 @@
 const express = require('express');
 
 const router = express.Router();
-const { videoplayback, retreiveStreamLinks } = require('../../controllers/streamController');
+const {
+  videoplayback,
+  retreiveStreamLinks,
+} = require('../../controllers/streamController');
 
 /*
  ** GET /api/media/videoplayback/fileName.mp4?id=id
@@ -13,7 +16,7 @@ router.get('/videoplayback/:name', videoplayback);
 /*
  ** GET /api/media/streamlinks?fileName
  ** @desc     generate stream links
- ** @params   fileName
+ ** @params   fileName, duration (in ms), type (movie/show), pageSize = 100
  */
 router.get('/streamlinks', retreiveStreamLinks);
 

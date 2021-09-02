@@ -19,3 +19,8 @@ streamLinks will return videos which do not have 'hindi', 'x265', 'hevc', 'sampl
 ## TODO
 
 - Convert api credentials to env.
+
+c0jfiuo4_9tHW73H1AbXoUg9fAHiXNL1WiNfYNnqD
+
+c0jfiuo4
+https://a90fv9.deta.dev

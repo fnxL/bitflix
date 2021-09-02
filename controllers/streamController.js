@@ -13,13 +13,14 @@ const videoplayback = async (req, res) => {
 };
 
 const retreiveStreamLinks = async (req, res) => {
-  if (req.query.fileName) {
-    const links = await drive.getStreamLinks(req.query.fileName);
+  const { fileName, duration } = req.query;
+  if (fileName && duration) {
+    const links = await drive.getStreamLinks(fileName, duration);
     res.json(links);
   } else {
     res.json({
       status: false,
-      message: 'No fileName provided',
+      message: 'Invalid parameters',
     });
   }
 };
