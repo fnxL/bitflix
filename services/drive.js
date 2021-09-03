@@ -146,9 +146,8 @@ class DriveAPI {
     const threshold = type === 'movie' ? 600000 : 300000; // 10 minutes / 5 minutes
     const filteredLinks = files.filter(({ videoMediaMetadata }) => {
       if (videoMediaMetadata) {
-        return (
-          Math.abs(duration - videoMediaMetadata.durationMillis) <= threshold
-        );
+        return true;
+        // Math.abs(duration - videoMediaMetadata.durationMillis) <= threshold
       }
       return false;
     });
@@ -215,7 +214,7 @@ class DriveAPI {
         },
         fullText: {
           contains: [`${fileName}`],
-          exclude: ['dual', 'hindi', 'sample', 'x265', 'hevc'],
+          exclude: ['dual', 'hindi', 'sample', 'x265', 'hevc', 'h.265', 'h265'],
         },
       });
 
@@ -238,6 +237,8 @@ class DriveAPI {
 
       /**
        * for sortOrder format use:
+       *
+       * Note: Also need to add the same keyword to the keyworldList array in utils file for regex to worknpm r
        *
        * sortOrder = [
        *  ['bluray', 'hdr'],
