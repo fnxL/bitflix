@@ -1,10 +1,11 @@
 const { google } = require('googleapis');
 const config = require('config');
+const { sortBy, sortOrder } = require('../utils');
 
-const serverIp =
+const BASE_URL =
   process.env.NODE_ENV === 'development'
-    ? process.env.SERVER_IP_DEV
-    : process.env.SERVER_IP_PROD;
+    ? process.env.BASE_URL_DEV
+    : process.env.BASE_URL_PROD;
 
 class DriveAPI {
   constructor() {
@@ -113,22 +114,10 @@ class DriveAPI {
       });
   };
 
-  // streamLinks -> wrapperFunc -> getStreamLinks
-  /*
-    linkformat = ${serverIp}/api/media/videoplayback?id=1Q_kA1j1LifWbf-3YFKmp_K-oL3sdD6x2x
-    returns {
-      "720": [],
-      "1080": [strings], //10 links
-      "2160": []
-    }
-
-     @dec     generate stream links of various quality by default.
-     @params  fileName -> `MovieName releaseYear quality`
-  */
   convertIdsToLink = (files) => {
     files.forEach((file) => {
       const fileNameEncoded = encodeURI(file.name);
-      file.link = `${serverIp}/api/media/videoplayback/${fileNameEncoded}?id=${file.id}`;
+      file.link = `${BASE_URL}/api/media/videoplayback/${fileNameEncoded}?id=${file.id}`;
       delete file.id;
     });
   };
@@ -155,19 +144,54 @@ class DriveAPI {
   // remove hasThumbnail false && no videoMetaData && filter by durationMillis
   filterStreamLinks = (files, duration, type) => {
     const threshold = type === 'movie' ? 600000 : 300000; // 10 minutes / 5 minutes
-    const filteredLinks = files.filter(
-      ({ hasThumbnail, videoMediaMetadata }) => {
-        if (hasThumbnail) {
-          return true;
-          // Math.abs(duration - videoMediaMetadata.durationMillis) <= threshold
-        }
-        return false;
+    const filteredLinks = files.filter(({ videoMediaMetadata }) => {
+      if (videoMediaMetadata) {
+        return (
+          Math.abs(duration - videoMediaMetadata.durationMillis) <= threshold
+        );
       }
-    );
+      return false;
+    });
     return filteredLinks;
   };
 
-  sortStreamLinks = (files, order) => {};
+  /**
+   * for orderBy format use:
+   *
+   * orderby = [
+   *  ['bluray', 'hdr'],
+   *  ['bdrip'],
+   *  ['etc,etc']
+   * ]
+   * @param {*} files
+   * @returns sorted stream links.
+   */
+
+  sortStreamLinks = (files, orderBy) => {
+    const sortedLinks = sortBy(files, orderBy);
+    return sortedLinks;
+  };
+  // streamLinks -> wrapperFunc -> getStreamLinks
+  /*
+    linkformat = ${serverIp}/api/media/videoplayback?id=1Q_kA1j1LifWbf-3YFKmp_K-oL3sdD6x2x
+    returns {
+      "720": [],
+      "1080": [strings], //10 links
+      "2160": []
+    }
+
+     @dec     generate stream links of various quality by default.
+     @params  fileName -> `MovieName releaseYear quality`
+  */
+
+  /**
+   *
+   * @param {*} fileName - Name of file
+   * @param {*} duration - Duration in milliseconds
+   * @param {*} type - type of file (movie/tv/show)
+   * @param {*} pageSize  - result size default 100
+   * @returns Stream links of given file sorted by highest quality.
+   */
 
   getStreamLinks = async (
     fileName,
@@ -212,7 +236,19 @@ class DriveAPI {
       // filter all wastefull links
       const links = this.filterStreamLinks(files, duration, type);
 
-      return links;
+      /**
+       * for sortOrder format use:
+       *
+       * sortOrder = [
+       *  ['bluray', 'hdr'],
+       *  ['bdrip'],
+       *  ['etc,etc']
+       * ]
+       * @desc links will get sorted according to the order you provide in the array.
+       */
+      const sortedLinks = this.sortStreamLinks(links, sortOrder);
+
+      return sortedLinks;
     } catch (error) {
       console.log(error);
       return error;

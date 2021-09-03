@@ -1,3 +1,8 @@
+### Changelogs v0.0.4
+
+- Implemented a sortStreamLinks function to sort the files by quality. Abstraction in /utils.js file.
+- Fix streamLinks format.
+
 ### Changelogs v0.0.3
 
 createQuery - filter video files based on conditions

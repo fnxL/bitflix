@@ -9,7 +9,9 @@
   "rules": {
     "camelcase": "off",
     "radix": ["warn"],
+    "no-plusplus": "off",
     "no-console": "off",
+    "no-loop-func": "off",
     "func-names": "off",
     "no-param-reassign": "warn",
     "no-constant-condition": "warn",
