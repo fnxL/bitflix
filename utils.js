@@ -163,4 +163,13 @@ const sortBy = (files, order) => {
 //   console.log(keywordss);
 // });
 
-module.exports = { sortBy, sortOrder };
+const sortByFileSize = (files) => {
+  const sorted = files.sort((a, b) => {
+    const sizeA = parseInt(a.size, 10);
+    const sizeB = parseInt(b.size, 10);
+    return sizeB - sizeA;
+  });
+  return sorted;
+};
+
+module.exports = { sortBy, sortOrder, sortByFileSize };

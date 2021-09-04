@@ -1,3 +1,13 @@
+### Changelogs v0.0.5
+
+- Dropped filter & sort by quality idea
+- Simply sort the file by its size. Size ∝ Quality
+- Get Links based on Platform (Android & Web)
+- Get Links for 2160p, 1080p & 720p depending on platform type
+- Get files with mimeType of `video/mp4` if client isFireFox as firefox wont support mkv.
+- While searching for a file simply just for `${MovieName} + ${releaseYear} + 1080 / 720` to get the maximum results. Do not include `p` at the end.
+- Added morgan, chalk
+
 ### Changelogs v0.0.4
 
 - Implemented a sortStreamLinks function to sort the files by quality. Abstraction in /utils.js file.
@@ -25,6 +35,7 @@ streamLinks will return videos which do not have 'hindi', 'x265', 'hevc', 'sampl
 
 - Convert api credentials to env.
 
+//DETA CREDS
 c0jfiuo4_9tHW73H1AbXoUg9fAHiXNL1WiNfYNnqD
 
 c0jfiuo4

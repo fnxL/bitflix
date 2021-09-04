@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
 const config = require('config');
-const { sortBy, sortOrder } = require('../utils');
+const { sortBy, sortOrder, sortByFileSize } = require('../utils');
 
 const BASE_URL =
   process.env.NODE_ENV === 'development'
@@ -170,7 +170,7 @@ class DriveAPI {
     const sortedLinks = sortBy(files, orderBy);
     return sortedLinks;
   };
-  // streamLinks -> wrapperFunc -> getStreamLinks
+
   /*
     linkformat = ${serverIp}/api/media/videoplayback?id=1Q_kA1j1LifWbf-3YFKmp_K-oL3sdD6x2x
     returns {
@@ -194,8 +194,8 @@ class DriveAPI {
 
   getStreamLinks = async (
     fileName,
-    duration,
-    type = 'movie',
+    platform = 'web',
+    isFireFox = false,
     pageSize = 100
   ) => {
     /**
@@ -207,16 +207,39 @@ class DriveAPI {
      *    },
      * }
      */
+    const queryWeb = {
+      mimeType: {
+        contains: [isFireFox ? 'video/mp4' : 'video/'],
+      },
+      fullText: {
+        contains: [`${fileName}`],
+        exclude: [
+          'dual',
+          'hindi',
+          'sample',
+          'x265',
+          'hevc',
+          'h265',
+          'yify',
+          'yts',
+        ],
+      },
+    };
+
+    const queryAndroid = {
+      mimeType: {
+        contains: ['video/'],
+      },
+      fullText: {
+        contains: [`${fileName}`],
+        exclude: ['sample', 'yify', 'yts'],
+      },
+    };
+
     try {
-      const query = this.createQuery({
-        mimeType: {
-          contains: ['video/'],
-        },
-        fullText: {
-          contains: [`${fileName}`],
-          exclude: ['dual', 'hindi', 'sample', 'x265', 'hevc', 'h.265', 'h265'],
-        },
-      });
+      const query = this.createQuery(
+        platform === 'web' ? queryWeb : queryAndroid
+      );
 
       const {
         data: { files },
@@ -232,22 +255,12 @@ class DriveAPI {
 
       this.convertIdsToLink(files, fileName);
 
-      // filter all wastefull links
-      const links = this.filterStreamLinks(files, duration, type);
+      // no need to filter links for now. will come back to it later.
+      // const links = this.filterStreamLinks(files, duration, type);
 
-      /**
-       * for sortOrder format use:
-       *
-       * Note: Also need to add the same keyword to the keyworldList array in utils file for regex to worknpm r
-       *
-       * sortOrder = [
-       *  ['bluray', 'hdr'],
-       *  ['bdrip'],
-       *  ['etc,etc']
-       * ]
-       * @desc links will get sorted according to the order you provide in the array.
-       */
-      const sortedLinks = this.sortStreamLinks(links, sortOrder);
+      // simply sort by filesize in descending order.
+      // since higher file size ==> higher bit rate ==> higher the quality of the video.
+      const sortedLinks = sortByFileSize(files);
 
       return sortedLinks;
     } catch (error) {
