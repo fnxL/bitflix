@@ -1,10 +1,11 @@
 const { google } = require('googleapis');
 const config = require('config');
+const { sortBy, sortOrder, sortByFileSize } = require('../utils');
 
-const serverIp =
+const BASE_URL =
   process.env.NODE_ENV === 'development'
-    ? process.env.SERVER_IP_DEV
-    : process.env.SERVER_IP_PROD;
+    ? process.env.BASE_URL_DEV
+    : process.env.BASE_URL_PROD;
 
 class DriveAPI {
   constructor() {
@@ -67,62 +68,57 @@ class DriveAPI {
   };
 
   streamFile = async (id, res, range) => {
-    // const file = await this.getFile(id);
     if (id) {
-      // const { start, end, chunkSize, size, mimeType } = await this.getRange(range, file);
+      try {
+        const resp = await this.drive.files.get(
+          {
+            fileId: id,
+            alt: 'media',
+            supportsAllDrives: true,
+          },
+          {
+            responseType: 'stream',
+            headers: { Range: range },
+          }
+        );
 
-      // res.writeHead(206, {
-      //   'Content-Range': `bytes ${start}-${end}/${size}`,
-      //   'Accept-Ranges': 'bytes',
-      //   'Content-Length': chunkSize,
-      //   'Content-Type': mimeType,
-      //   'Cache-Control': 'public, max-age=3600',
-      // });
+        // accept byte ranges
+        res.set({ 'accept-ranges': 'bytes' });
 
-      const resp = await this.drive.files.get(
-        {
-          fileId: id,
-          alt: 'media',
-          supportsAllDrives: true,
-        },
-        {
-          responseType: 'stream',
-          headers: { Range: range },
-        }
-      );
-      // keeps the connection alive
-      resp.headers.connection = 'keep-alive';
-      // delete this header to avoid downloading the file
-      delete resp.headers['content-disposition'];
+        // delete this header to avoid downloading the file or set it to inline
+        delete resp.headers['content-disposition'];
 
-      // this header does nothing currently
-      resp.headers['cache-control'] = 'public, max-age=3600';
+        // trash header
+        delete resp.headers['alt-svc'];
 
-      res.writeHead(206, resp.headers);
-      resp.data.pipe(res);
+        // keeps the connection alive
+        resp.headers.connection = 'keep-alive';
+
+        // for some reason this only works in firefox.
+        resp.headers['cache-control'] = 'public, max-age=3600';
+
+        // redundant header if cache-control exists
+        delete resp.headers.expires;
+
+        res.status(206);
+        res.set(resp.headers);
+
+        resp.data.pipe(res);
+      } catch (error) {
+        res.json(error);
+      }
     } else
       res.status(404).json({
-        success: false,
+        status: false,
         message: 'No fileId provided',
       });
   };
 
-  // streamLinks -> wrapperFunc -> getStreamLinks
-  /*
-    linkformat = ${serverIp}/api/media/videoplayback?id=1Q_kA1j1LifWbf-3YFKmp_K-oL3sdD6x2x
-    returns {
-      "720": [],
-      "1080": [strings], //10 links
-      "2160": []
-    }
-
-     @dec     generate stream links of various quality by default.
-     @params  fileName -> `MovieName releaseYear quality`
-  */
-  convertIdsToLink = (movieDetails) => {
-    movieDetails.forEach((movie) => {
-      movie.link = `${serverIp}api/media/videoplayback?id=${movie.id}`;
-      delete movie.id;
+  convertIdsToLink = (files) => {
+    files.forEach((file) => {
+      const fileNameEncoded = encodeURI(file.name);
+      file.link = `${BASE_URL}/api/media/videoplayback/${fileNameEncoded}?id=${file.id}`;
+      delete file.id;
     });
   };
 
@@ -145,7 +141,63 @@ class DriveAPI {
     return query;
   };
 
-  getStreamLinks = async (fileName, pageSize = 100) => {
+  // remove hasThumbnail false && no videoMetaData && filter by durationMillis
+  filterStreamLinks = (files, duration, type) => {
+    const threshold = type === 'movie' ? 600000 : 300000; // 10 minutes / 5 minutes
+    const filteredLinks = files.filter(({ videoMediaMetadata }) => {
+      if (videoMediaMetadata) {
+        return true;
+        // Math.abs(duration - videoMediaMetadata.durationMillis) <= threshold
+      }
+      return false;
+    });
+    return filteredLinks;
+  };
+
+  /**
+   * for orderBy format use:
+   *
+   * orderby = [
+   *  ['bluray', 'hdr'],
+   *  ['bdrip'],
+   *  ['etc,etc']
+   * ]
+   * @param {*} files
+   * @returns sorted stream links.
+   */
+
+  sortStreamLinks = (files, orderBy) => {
+    const sortedLinks = sortBy(files, orderBy);
+    return sortedLinks;
+  };
+
+  /*
+    linkformat = ${serverIp}/api/media/videoplayback?id=1Q_kA1j1LifWbf-3YFKmp_K-oL3sdD6x2x
+    returns {
+      "720": [],
+      "1080": [strings], //10 links
+      "2160": []
+    }
+
+     @dec     generate stream links of various quality by default.
+     @params  fileName -> `MovieName releaseYear quality`
+  */
+
+  /**
+   *
+   * @param {*} fileName - Name of file
+   * @param {*} duration - Duration in milliseconds
+   * @param {*} type - type of file (movie/tv/show)
+   * @param {*} pageSize  - result size default 100
+   * @returns Stream links of given file sorted by highest quality.
+   */
+
+  getStreamLinks = async (
+    fileName,
+    platform = 'web',
+    isFireFox = false,
+    pageSize = 100
+  ) => {
     /**
      * for query use format :
      * {
@@ -155,16 +207,39 @@ class DriveAPI {
      *    },
      * }
      */
+    const queryWeb = {
+      mimeType: {
+        contains: [isFireFox ? 'video/mp4' : 'video/'],
+      },
+      fullText: {
+        contains: [`${fileName}`],
+        exclude: [
+          'dual',
+          'hindi',
+          'sample',
+          'x265',
+          'hevc',
+          'h265',
+          'yify',
+          'yts',
+        ],
+      },
+    };
+
+    const queryAndroid = {
+      mimeType: {
+        contains: ['video/'],
+      },
+      fullText: {
+        contains: [`${fileName}`],
+        exclude: ['sample', 'yify', 'yts'],
+      },
+    };
+
     try {
-      const query = this.createQuery({
-        mimeType: {
-          contains: ['video/'],
-        },
-        fullText: {
-          contains: [`${fileName}`],
-          exclude: ['dual', 'hindi', 'sample', 'HEVC', 'x265'],
-        },
-      });
+      const query = this.createQuery(
+        platform === 'web' ? queryWeb : queryAndroid
+      );
 
       const {
         data: { files },
@@ -177,8 +252,17 @@ class DriveAPI {
           'files(id,name,mimeType,size,hasThumbnail,videoMediaMetadata(durationMillis))',
         q: query,
       });
-      this.convertIdsToLink(files);
-      return files;
+
+      this.convertIdsToLink(files, fileName);
+
+      // no need to filter links for now. will come back to it later.
+      // const links = this.filterStreamLinks(files, duration, type);
+
+      // simply sort by filesize in descending order.
+      // since higher file size ==> higher bit rate ==> higher the quality of the video.
+      const sortedLinks = sortByFileSize(files);
+
+      return sortedLinks;
     } catch (error) {
       console.log(error);
       return error;
