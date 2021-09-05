@@ -90,11 +90,12 @@ class DriveAPI {
 
         // trash header
         delete resp.headers['alt-svc'];
+        delete resp.headers.vary;
+        delete resp.headers['x-guploader-uploadid'];
+        delete resp.headers.date;
+        delete resp.headers.connection;
 
-        // keeps the connection alive
-        resp.headers.connection = 'keep-alive';
-
-        // for some reason this only works in firefox.
+        // Cache Control 1 Hour
         resp.headers['cache-control'] = 'public, max-age=3600';
 
         // redundant header if cache-control exists

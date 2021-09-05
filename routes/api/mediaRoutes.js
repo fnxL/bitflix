@@ -1,4 +1,5 @@
 const express = require('express');
+const setEtag = require('../../middleware/etag');
 
 const router = express.Router();
 const {
@@ -11,7 +12,7 @@ const {
  ** @desc     stream videos
  ** @params   fileName, id
  */
-router.get('/videoplayback/:name', videoplayback);
+router.get('/videoplayback/:name', setEtag.setEtag, videoplayback);
 
 /*
  ** GET /api/media/streamlinks?fileName
