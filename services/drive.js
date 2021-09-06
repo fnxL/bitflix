@@ -69,45 +69,41 @@ class DriveAPI {
 
   streamFile = async (id, res, range) => {
     if (id) {
-      try {
-        const resp = await this.drive.files.get(
-          {
-            fileId: id,
-            alt: 'media',
-            supportsAllDrives: true,
-          },
-          {
-            responseType: 'stream',
-            headers: { Range: range },
-          }
-        );
+      const resp = await this.drive.files.get(
+        {
+          fileId: id,
+          alt: 'media',
+          supportsAllDrives: true,
+        },
+        {
+          responseType: 'stream',
+          headers: { Range: range },
+        }
+      );
 
-        // accept byte ranges
-        res.set({ 'accept-ranges': 'bytes' });
+      // accept byte ranges
+      res.set({ 'accept-ranges': 'bytes' });
 
-        // delete this header to avoid downloading the file or set it to inline
-        delete resp.headers['content-disposition'];
+      // delete this header to avoid downloading the file or set it to inline
+      delete resp.headers['content-disposition'];
 
-        // trash header
-        delete resp.headers['alt-svc'];
-        delete resp.headers.vary;
-        delete resp.headers['x-guploader-uploadid'];
-        delete resp.headers.date;
-        delete resp.headers.connection;
+      // trash header
+      delete resp.headers['alt-svc'];
+      delete resp.headers.vary;
+      delete resp.headers['x-guploader-uploadid'];
+      delete resp.headers.date;
+      delete resp.headers.connection;
 
-        // Cache Control 1 Hour
-        resp.headers['cache-control'] = 'public, max-age=3600';
+      // Cache Control 1 Hour
+      resp.headers['cache-control'] = 'public, max-age=3600';
 
-        // redundant header if cache-control exists
-        delete resp.headers.expires;
+      // redundant header if cache-control exists
+      delete resp.headers.expires;
 
-        res.status(206);
-        res.set(resp.headers);
+      res.status(206);
+      res.set(resp.headers);
 
-        resp.data.pipe(res);
-      } catch (error) {
-        res.json(error);
-      }
+      resp.data.pipe(res);
     } else
       res.status(404).json({
         status: false,
@@ -237,37 +233,32 @@ class DriveAPI {
       },
     };
 
-    try {
-      const query = this.createQuery(
-        platform === 'web' ? queryWeb : queryAndroid
-      );
+    const query = this.createQuery(
+      platform === 'web' ? queryWeb : queryAndroid
+    );
 
-      const {
-        data: { files },
-      } = await this.drive.files.list({
-        corpora: 'allDrives',
-        includeItemsFromAllDrives: true,
-        supportsAllDrives: true,
-        pageSize: pageSize,
-        fields:
-          'files(id,name,mimeType,size,hasThumbnail,videoMediaMetadata(durationMillis))',
-        q: query,
-      });
+    const {
+      data: { files },
+    } = await this.drive.files.list({
+      corpora: 'allDrives',
+      includeItemsFromAllDrives: true,
+      supportsAllDrives: true,
+      pageSize: pageSize,
+      fields:
+        'files(id,name,mimeType,size,hasThumbnail,videoMediaMetadata(durationMillis))',
+      q: query,
+    });
 
-      this.convertIdsToLink(files, fileName);
+    this.convertIdsToLink(files, fileName);
 
-      // no need to filter links for now. will come back to it later.
-      // const links = this.filterStreamLinks(files, duration, type);
+    // no need to filter links for now. will come back to it later.
+    // const links = this.filterStreamLinks(files, duration, type);
 
-      // simply sort by filesize in descending order.
-      // since higher file size ==> higher bit rate ==> higher the quality of the video.
-      const sortedLinks = sortByFileSize(files);
+    // simply sort by filesize in descending order.
+    // since higher file size ==> higher bit rate ==> higher the quality of the video.
+    const sortedLinks = sortByFileSize(files);
 
-      return sortedLinks;
-    } catch (error) {
-      console.log(error);
-      return error;
-    }
+    return sortedLinks;
   };
 }
 

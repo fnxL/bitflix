@@ -1,4 +1,5 @@
 const express = require('express');
+const asyncHandler = require('express-async-handler');
 const setEtag = require('../../middleware/etag');
 
 const router = express.Router();
@@ -12,13 +13,17 @@ const {
  ** @desc     stream videos
  ** @params   fileName, id
  */
-router.get('/videoplayback/:name', setEtag.setEtag, videoplayback);
+router.get(
+  '/videoplayback/:name',
+  setEtag.setEtag,
+  asyncHandler(videoplayback)
+);
 
 /*
- ** GET /api/media/streamlinks?fileName
- ** @desc     generate stream links
- ** @params   fileName, duration (in ms), type (movie/show), pageSize = 100
+ * GET /api/media/streamlinks?fileName
+ * @desc     generate stream links
+ * @param   fileName, duration (in ms), type (movie/show), pageSize = 100
  */
-router.get('/streamlinks', retreiveStreamLinks);
+router.get('/streamlinks', asyncHandler(retreiveStreamLinks));
 
 module.exports = router;

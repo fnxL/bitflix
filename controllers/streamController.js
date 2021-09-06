@@ -5,11 +5,8 @@ const drive = new DriveAPI();
 const videoplayback = async (req, res) => {
   if (req.query.id) {
     await drive.streamFile(req.query.id, res, req.headers.range);
-  } else
-    res.status(404).json({
-      success: false,
-      message: 'provide id',
-    });
+  } else res.status(400);
+  throw new Error('Invalid Parameters');
 };
 
 const retreiveStreamLinks = async (req, res) => {
@@ -60,10 +57,8 @@ const retreiveStreamLinks = async (req, res) => {
 
     res.json(links);
   } else {
-    res.json({
-      status: false,
-      message: 'Invalid parameters',
-    });
+    res.status(400);
+    throw new Error('Invalid Parameters');
   }
 };
 
