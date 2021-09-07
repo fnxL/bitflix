@@ -1,12 +1,16 @@
-const config = require('config');
 const { google } = require('googleapis');
+const config = require('../api/config');
 
 const scopes = ['https://www.googleapis.com/auth/drive'];
 
 class validateApp {
   constructor() {
     const { client_secret, client_id, redirect_uris } = config.appCredentials;
-    this.oauth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+    this.oauth2Client = new google.auth.OAuth2(
+      client_id,
+      client_secret,
+      redirect_uris[0]
+    );
   }
 
   genAuthUrl = async () => {

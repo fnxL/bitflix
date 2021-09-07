@@ -1,12 +1,22 @@
-const DriveAPI = require('../services/drive');
+const DriveAPI = require('../../../services/drive');
 
 const drive = new DriveAPI();
 
 const videoplayback = async (req, res) => {
-  if (req.query.id) {
-    await drive.streamFile(req.query.id, res, req.headers.range);
-  } else res.status(400);
-  throw new Error('Invalid Parameters');
+  const { id } = req.query;
+  const { range } = req.headers;
+
+  if (id && range) {
+    //
+    const response = await drive.streamFile(id, range);
+    res.status(206);
+    res.set(response.headers);
+    response.data.pipe(res);
+    //
+  } else {
+    res.status(400);
+    throw new Error('Invalid request -> Missing ID or range headers');
+  }
 };
 
 const retreiveStreamLinks = async (req, res) => {

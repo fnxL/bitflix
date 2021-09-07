@@ -3,14 +3,14 @@ const express = require('express');
 const cors = require('cors');
 const chalk = require('chalk');
 const morgan = require('morgan');
-const { notFound, errorHandler } = require('./middleware/error');
+const { notFound, errorHandler } = require('./api/middleware/error');
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 app.use(morgan('dev'));
-app.use(require('./routes'));
+app.use(require('./api/routes'));
 
 app.use(notFound);
 app.use(errorHandler);

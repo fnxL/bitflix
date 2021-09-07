@@ -1,12 +1,8 @@
 const express = require('express');
 const asyncHandler = require('express-async-handler');
-const setEtag = require('../../middleware/etag');
 
 const router = express.Router();
-const {
-  videoplayback,
-  retreiveStreamLinks,
-} = require('../../controllers/streamController');
+const { videoplayback, retreiveStreamLinks } = require('./media.controller');
 
 /*
  ** GET /api/media/videoplayback/fileName.mp4?id=id
@@ -15,7 +11,7 @@ const {
  */
 router.get(
   '/videoplayback/:name',
-  setEtag.setEtag,
+
   asyncHandler(videoplayback)
 );
 

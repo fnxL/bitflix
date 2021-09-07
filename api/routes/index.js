@@ -2,8 +2,8 @@ const express = require('express');
 
 const router = express.Router();
 
-const validateAppRoutes = require('./api/validateAppRoutes');
-const mediaRoutes = require('./api/mediaRoutes');
+const validateAppRoutes = require('./validateapp/validateapp.routes');
+const mediaRoutes = require('./media/media.routes');
 
 // Validate app
 router.use('/api/validateapp', validateAppRoutes);
