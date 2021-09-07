@@ -1,4 +1,4 @@
-const ValidateAppService = require('../../../services/validateApp');
+const ValidateAppService = require('../../services/validateApp');
 
 const validateApp = new ValidateAppService();
 

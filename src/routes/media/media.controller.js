@@ -1,4 +1,4 @@
-const DriveAPI = require('../../../services/drive');
+const DriveAPI = require('../../services/drive');
 
 const drive = new DriveAPI();
 
