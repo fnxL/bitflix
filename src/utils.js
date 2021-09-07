@@ -5,8 +5,6 @@
 // 5. WEBRip
 // 6. HDRip
 
-const data = require('./mockdata');
-
 //
 const sortOrder = [
   ['bluray', '10bit', 'hdr'],
@@ -24,36 +22,6 @@ const sortOrder = [
   ['br-rip'],
   ['webrip'],
   ['hdrip'],
-];
-
-// mock data
-const data2 = [
-  { name: 'Wrath.of.Man.2021.2160p.AMZN.WEB-DL.DDP5.1.HDR.HEVC-CMRG' },
-
-  {
-    name: 'Black.Widow.2021.2160p.DSNP.BluRay.x265.10bit.HDR.DDP5.1.Atmos-CM',
-  },
-  {
-    name: 'Mulan 2020 WebRip 1080p English DD 5.1 x264 ESub - mkvCinemas [Telly].mkv',
-  },
-  {
-    name: 'Mulan.2020.1080p.WEBRip.x264-RARBG.mp4',
-  },
-  {
-    name: 'Mulan.2020.1080p.HDRip.mp4',
-  },
-  {
-    name: 'Justice.League.Snyders.Cut.2021.2160p.HMAX.WEB-DLx265.10bit.HDR.DDP5.1.Atmos-SWTYBLZ',
-  },
-  {
-    name: 'Mulan.2020.1080p.BluRay.x264-HDxT.mkv',
-  },
-  {
-    name: 'Mulan.2020.HDR.1080p.BluRay.x264-HDxT.mkv',
-  },
-  {
-    name: 'Mulan.2020.10bit.1080p.BluRay.x264-HDxT.mkv',
-  },
 ];
 
 // keywords to search for in the title
@@ -75,7 +43,7 @@ const detectKeywords = (string) => {
   keywords.forEach((e) => {
     // perform exact word match  for these so they don't interfere with rest of acronyms
     if (e === 'hdr' || e === '10bit' || e === 'hdrip') {
-      const x = new RegExp('\\b' + e + '\\b', 'i'); // exact full word match
+      const x = new RegExp(`\\b ${e} \\b`, 'i'); // exact full word match
       const result = string.match(x);
       if (result) detectedkeywordsList.push(result[0]);
     } else {

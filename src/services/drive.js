@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-const config = require('../api/config');
+const config = require('../config');
 const { sortByFileSize } = require('../utils');
 
 class DriveAPI {
