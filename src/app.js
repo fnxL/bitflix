@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const chalk = require('chalk');
 const morgan = require('morgan');
 const { notFound, errorHandler } = require('./middleware/error');
 
@@ -12,17 +11,9 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(require('./routes'));
 
+// catch 404
 app.use(notFound);
+// error handler
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
-app.listen(
-  PORT,
-  console.log(
-    chalk.magenta(
-      `Server running in`,
-      chalk.red(`${process.env.NODE_ENV}`),
-      `mode on port ${PORT} \n http://localhost:${PORT}`
-    )
-  )
-);
+module.exports = app;
