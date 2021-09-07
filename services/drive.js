@@ -1,15 +1,10 @@
 const { google } = require('googleapis');
-const config = require('config');
-const { sortBy, sortOrder, sortByFileSize } = require('../utils');
-
-const BASE_URL =
-  process.env.NODE_ENV === 'development'
-    ? process.env.BASE_URL_DEV
-    : process.env.BASE_URL_PROD;
+const config = require('../api/config');
+const { sortByFileSize } = require('../utils');
 
 class DriveAPI {
   constructor() {
-    if (config.has('token')) {
+    if (config.token) {
       const { client_secret, client_id, redirect_uris } = config.appCredentials;
       const oauth2Client = new google.auth.OAuth2(
         client_id,
@@ -67,54 +62,45 @@ class DriveAPI {
     return videoObj;
   };
 
-  streamFile = async (id, res, range) => {
-    if (id) {
-      const resp = await this.drive.files.get(
-        {
-          fileId: id,
-          alt: 'media',
-          supportsAllDrives: true,
-        },
-        {
-          responseType: 'stream',
-          headers: { Range: range },
-        }
-      );
+  streamFile = async (id, range) => {
+    const resp = await this.drive.files.get(
+      {
+        fileId: id,
+        alt: 'media',
+        supportsAllDrives: true,
+      },
+      {
+        responseType: 'stream',
+        headers: { Range: range },
+      }
+    );
 
-      // accept byte ranges
-      res.set({ 'accept-ranges': 'bytes' });
+    // delete this header to avoid downloading the file or set it to inline
+    delete resp.headers['content-disposition'];
+    // trash headers
+    delete resp.headers['alt-svc'];
+    delete resp.headers.vary;
+    delete resp.headers['x-guploader-uploadid'];
+    delete resp.headers.date;
+    delete resp.headers.connection;
+    delete resp.headers.expires;
 
-      // delete this header to avoid downloading the file or set it to inline
-      delete resp.headers['content-disposition'];
+    // accept byte ranges
+    resp.headers['accept-ranges'] = 'bytes';
 
-      // trash header
-      delete resp.headers['alt-svc'];
-      delete resp.headers.vary;
-      delete resp.headers['x-guploader-uploadid'];
-      delete resp.headers.date;
-      delete resp.headers.connection;
+    // Cache Control 1 Hour
+    resp.headers['cache-control'] = 'public, max-age=3600';
 
-      // Cache Control 1 Hour
-      resp.headers['cache-control'] = 'public, max-age=3600';
+    // set Etag for cache control to work.
+    resp.headers.Etag = id;
 
-      // redundant header if cache-control exists
-      delete resp.headers.expires;
-
-      res.status(206);
-      res.set(resp.headers);
-
-      resp.data.pipe(res);
-    } else
-      res.status(404).json({
-        status: false,
-        message: 'No fileId provided',
-      });
+    return resp;
   };
 
   convertIdsToLink = (files) => {
     files.forEach((file) => {
       const fileNameEncoded = encodeURI(file.name);
-      file.link = `${BASE_URL}/api/media/videoplayback/${fileNameEncoded}?id=${file.id}`;
+      file.link = `${config.base_url}/api/media/videoplayback/${fileNameEncoded}?id=${file.id}`;
       delete file.id;
     });
   };
@@ -152,41 +138,12 @@ class DriveAPI {
   };
 
   /**
-   * for orderBy format use:
-   *
-   * orderby = [
-   *  ['bluray', 'hdr'],
-   *  ['bdrip'],
-   *  ['etc,etc']
-   * ]
-   * @param {*} files
-   * @returns sorted stream links.
-   */
-
-  sortStreamLinks = (files, orderBy) => {
-    const sortedLinks = sortBy(files, orderBy);
-    return sortedLinks;
-  };
-
-  /*
-    linkformat = ${serverIp}/api/media/videoplayback?id=1Q_kA1j1LifWbf-3YFKmp_K-oL3sdD6x2x
-    returns {
-      "720": [],
-      "1080": [strings], //10 links
-      "2160": []
-    }
-
-     @dec     generate stream links of various quality by default.
-     @params  fileName -> `MovieName releaseYear quality`
-  */
-
-  /**
    *
    * @param {*} fileName - Name of file
    * @param {*} duration - Duration in milliseconds
    * @param {*} type - type of file (movie/tv/show)
    * @param {*} pageSize  - result size default 100
-   * @returns Stream links of given file sorted by highest quality.
+   * @returns Stream links of given file sorted by file size.
    */
 
   getStreamLinks = async (

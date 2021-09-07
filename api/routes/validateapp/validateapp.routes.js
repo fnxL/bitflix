@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAuthUrl, handleCallback } = require('../../controllers/validateAppController');
+const { getAuthUrl, handleCallback } = require('./validateapp.controller');
 
 const router = express.Router();
 
