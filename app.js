@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(morgan('dev'));
-app.use(require('./api/routes'));
+app.use(require('./api'));
 
 app.use(notFound);
 app.use(errorHandler);
