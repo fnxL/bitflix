@@ -37,31 +37,6 @@ class DriveAPI {
     }
   };
 
-  // redundant
-  getRange = async (range, file) => {
-    const videoObj = {
-      mimeType: '',
-      start: 0,
-      end: 0,
-      chunkSize: 0,
-      size: 0,
-    };
-
-    videoObj.mimeType = file.mimeType;
-    videoObj.size = parseInt(file.size, 10);
-
-    const startEnd = range.replace(/bytes=/, '').split('-');
-    videoObj.start = parseInt(startEnd[0], 10);
-    videoObj.end =
-      parseInt(startEnd[1], 10) > 0
-        ? parseInt(startEnd[1], 10)
-        : videoObj.size - 1;
-
-    videoObj.chunkSize = videoObj.end - videoObj.start + 1;
-
-    return videoObj;
-  };
-
   streamFile = async (id, range) => {
     const resp = await this.drive.files.get(
       {
