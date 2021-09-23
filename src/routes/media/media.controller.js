@@ -1,4 +1,7 @@
 const DriveAPI = require('../../services/drive');
+const SubtitlesService = require('../../services/subtitles');
+
+const subtitles = new SubtitlesService();
 
 const drive = new DriveAPI();
 
@@ -21,6 +24,7 @@ const videoplayback = async (req, res) => {
 
 const retreiveStreamLinks = async (req, res) => {
   const { fileName, platform, isFireFox } = req.query;
+  console.log(fileName);
 
   const links = {
     720: [],
@@ -29,8 +33,8 @@ const retreiveStreamLinks = async (req, res) => {
   };
 
   if (fileName) {
-    if (platform) {
-      // android, no need to check for firefox.
+    if (platform === 'tv') {
+      // android TV, no need to check for firefox.
       // get only 2160p & 1080p videos.
       const search2160 = fileName.concat(' 2160');
       const search1080 = fileName.concat(' 1080');
@@ -72,7 +76,17 @@ const retreiveStreamLinks = async (req, res) => {
   }
 };
 
+const getSubtitles = async (req, res) => {
+  const { metadata } = req.query;
+  const obj = JSON.parse(Buffer.from(metadata, 'base64').toString('ascii'));
+
+  const subs = await subtitles.getSubs(obj);
+
+  res.json({ subs });
+};
+
 module.exports = {
   videoplayback,
   retreiveStreamLinks,
+  getSubtitles,
 };

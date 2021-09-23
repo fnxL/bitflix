@@ -86,7 +86,7 @@ class DriveAPI {
       const { contains, exclude } = rules[fieldName];
       if (contains) {
         contains.forEach((item) => {
-          query = query.concat(` and ${fieldName} contains '${item}'`);
+          query = query.concat(` and ${fieldName} contains "${item}"`);
         });
       }
       if (exclude) {
