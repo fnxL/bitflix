@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
 const config = require('../config');
-const { sortByFileSize } = require('../utils');
+const { filterAndSort } = require('../utils');
 
 class DriveAPI {
   constructor() {
@@ -72,11 +72,12 @@ class DriveAPI {
     return resp;
   };
 
-  convertIdsToLink = (files) => {
+  convertIdsToLink = (files, quality) => {
     files.forEach((file) => {
       const fileNameEncoded = encodeURI(file.name);
-      file.link = `${config.base_url}/api/media/videoplayback/${fileNameEncoded}?id=${file.id}`;
+      file.url = `${config.base_url}/api/media/videoplayback/${fileNameEncoded}?id=${file.id}`;
       delete file.id;
+      file.quality = `${quality}p`;
     });
   };
 
@@ -122,7 +123,8 @@ class DriveAPI {
    */
 
   getStreamLinks = async (
-    fileName,
+    cleanedFileName,
+    quality,
     platform = 'web',
     isFireFox = false,
     pageSize = 100
@@ -136,6 +138,8 @@ class DriveAPI {
      *    },
      * }
      */
+    const fileName = cleanedFileName.concat(` ${quality}`);
+
     const queryWeb = {
       mimeType: {
         contains: [isFireFox ? 'video/mp4' : 'video/'],
@@ -151,6 +155,8 @@ class DriveAPI {
           'h265',
           'yify',
           'yts',
+          'dubbed',
+          'rus',
         ],
       },
     };
@@ -168,7 +174,7 @@ class DriveAPI {
     const query = this.createQuery(
       platform === 'web' ? queryWeb : queryAndroid
     );
-
+    console.log(query);
     const {
       data: { files },
     } = await this.drive.files.list({
@@ -176,19 +182,18 @@ class DriveAPI {
       includeItemsFromAllDrives: true,
       supportsAllDrives: true,
       pageSize: pageSize,
-      fields:
-        'files(id,name,mimeType,size,hasThumbnail,videoMediaMetadata(durationMillis))',
+      fields: 'files(id,name,size)',
       q: query,
     });
 
-    this.convertIdsToLink(files, fileName);
+    this.convertIdsToLink(files, quality);
 
     // no need to filter links for now. will come back to it later.
     // const links = this.filterStreamLinks(files, duration, type);
 
     // simply sort by filesize in descending order.
     // since higher file size ==> higher bit rate ==> higher the quality of the video.
-    const sortedLinks = sortByFileSize(files);
+    const sortedLinks = filterAndSort(files, cleanedFileName);
 
     return sortedLinks;
   };

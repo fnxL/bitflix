@@ -5,6 +5,8 @@
 // 5. WEBRip
 // 6. HDRip
 
+const { mockData1080, mockData720 } = require('../mockdata');
+
 //
 const sortOrder = [
   ['bluray', '10bit', 'hdr'],
@@ -140,4 +142,39 @@ const sortByFileSize = (files) => {
   return sorted;
 };
 
-module.exports = { sortBy, sortOrder, sortByFileSize };
+const filterAndSort = (files, fileName) => {
+  const keywordsx = fileName.split(' ');
+  const fileArray = files.map((file) => ({
+    ...file,
+    name: file.name.toLowerCase(),
+  }));
+
+  const filtered = fileArray.filter((file) => {
+    const name = file.name.split('.');
+    let check = true;
+    for (let i = 0; i < keywordsx.length; i++) {
+      if (!name.includes(keywordsx[i])) {
+        check = false;
+        break;
+      }
+    }
+    return check;
+  });
+  return sortByFileSize(filtered);
+};
+
+const stripPunctuation = (str) =>
+  str.replace(
+    /(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|"|'|<|,|\.|>|\?|\/|\\|\||-|_|\+|=)/g,
+    ''
+  );
+
+console.log(stripPunctuation('s.o.z soldieres or zombies s01e01'));
+
+module.exports = {
+  sortBy,
+  sortOrder,
+  sortByFileSize,
+  stripPunctuation,
+  filterAndSort,
+};
