@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
 const config = require('../config');
-const { filterAndSort } = require('../utils');
+const { filterAndSort, sortByFileSize } = require('../utils');
 
 class DriveAPI {
   constructor() {
@@ -174,7 +174,7 @@ class DriveAPI {
     const query = this.createQuery(
       platform === 'web' ? queryWeb : queryAndroid
     );
-    console.log(query);
+
     const {
       data: { files },
     } = await this.drive.files.list({
@@ -193,8 +193,8 @@ class DriveAPI {
 
     // simply sort by filesize in descending order.
     // since higher file size ==> higher bit rate ==> higher the quality of the video.
-    const sortedLinks = filterAndSort(files, cleanedFileName);
-
+    const sortedLinks = sortByFileSize(files);
+    console.log(fileName);
     return sortedLinks;
   };
 }

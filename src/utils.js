@@ -144,6 +144,7 @@ const sortByFileSize = (files) => {
 
 const filterAndSort = (files, fileName) => {
   const keywordsx = fileName.split(' ');
+  const keywordsArray = keywordsx.map((word) => word.toLowerCase());
   const fileArray = files.map((file) => ({
     ...file,
     name: file.name.toLowerCase(),
@@ -152,8 +153,8 @@ const filterAndSort = (files, fileName) => {
   const filtered = fileArray.filter((file) => {
     const name = file.name.split('.');
     let check = true;
-    for (let i = 0; i < keywordsx.length; i++) {
-      if (!name.includes(keywordsx[i])) {
+    for (let i = 0; i < keywordsArray.length; i++) {
+      if (!name.includes(keywordsArray[i])) {
         check = false;
         break;
       }
@@ -163,18 +164,31 @@ const filterAndSort = (files, fileName) => {
   return sortByFileSize(filtered);
 };
 
-const stripPunctuation = (str) =>
-  str.replace(
-    /(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|"|'|<|,|\.|>|\?|\/|\\|\||-|_|\+|=)/g,
+const cleanFileName = (str) => {
+  const stripPunct = str.replace(
+    /(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|"|:|'|<|,|\|>|\?|\/|\\|\||-|_|\+|=)/g,
     ''
-  );
+  ); // remove punctuation,
+  const cleanabr = stripPunct.replace(/.(?:\.[A-Za-z]\.[A-Za-z])/gm, ''); // remove abbreviations
 
-console.log(stripPunctuation('s.o.z soldieres or zombies s01e01'));
+  const trailing = cleanabr.replace(/^[ \t]+|[ \t]+$/gm, '');
+  return trailing.replace(/[0-9]/g, ''); // remove numbers
+};
+
+const getSearchTerm = (title, type, options = {}) => {
+  const { year, season_number, episode_number } = options;
+  if (type === 'tv')
+    return `${title} S${
+      season_number < 10 ? `0${season_number}` : season_number
+    }E${episode_number < 10 ? `0${episode_number}` : episode_number}`;
+  return `${title} ${year}`;
+};
 
 module.exports = {
   sortBy,
   sortOrder,
+  getSearchTerm,
   sortByFileSize,
-  stripPunctuation,
   filterAndSort,
+  cleanFileName,
 };
