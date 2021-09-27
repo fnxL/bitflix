@@ -88,6 +88,7 @@ const retreiveStreamLinks = async (req, res) => {
 const getSubtitles = async (req, res) => {
   const { metadata } = req.query;
   const obj = JSON.parse(Buffer.from(metadata, 'base64').toString('ascii'));
+
   const subs = await subtitles.getSubs(obj);
   res.json(subs);
 };

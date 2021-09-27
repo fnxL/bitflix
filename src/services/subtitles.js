@@ -11,8 +11,12 @@ class Subtitles {
   }
 
   getSubs = async (obj) => {
-    const subs = await this.OpenSubtitles.search(obj);
-    return subs;
+    try {
+      const subs = await this.OpenSubtitles.search(obj);
+      return subs;
+    } catch (error) {
+      throw Error(error);
+    }
   };
 }
 
