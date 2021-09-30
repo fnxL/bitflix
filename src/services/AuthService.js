@@ -9,19 +9,36 @@ class AuthService {
     this.logger.info('Auth Service Initialized');
   }
 
-  async signUp(data) {
+  async generateKey() {
+    this.logger.info('Generating one time invite key...');
+    const key = this.prisma.key.create({
+      data: {},
+    });
+    return key;
+  }
+
+  async signUp({ invitekey, password, ...otherData }) {
+    this.logger.info('Checking if invitekey is valid');
+    const getInviteKey = await this.prisma.key.findUnique({
+      where: {
+        inviteKey: invitekey,
+      },
+    });
+
+    if (!getInviteKey) throw new Error('Invalid invitekey');
+
     this.logger.info('Checking if user already exists');
-    const checkUser = await this.getUser(data.username);
+    const checkUser = await this.getUser(otherData.username);
     if (checkUser) throw new Error('User already exists');
 
     this.logger.info('Hashing Password');
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(data.password, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     this.logger.info('Creating DB record');
     const user = await this.prisma.user.create({
       data: {
-        ...data,
+        ...otherData,
         password: hashedPassword,
       },
     });
@@ -34,13 +51,17 @@ class AuthService {
 
     this.logger.info('User created successfully');
 
+    this.logger.info('Deleting invitekey');
+
+    await this.prisma.key.delete({ where: { inviteKey: invitekey } });
+
     return { user };
   }
 
   async login({ username, password }) {
     this.logger.info('Checking if user exists');
     const user = await this.getUser(username);
-    if (!user) throw new Error('User does not exists');
+    if (!user) throw new Error('Invalid Credentials');
 
     this.logger.info('Checking Password');
     const isMatch = await bcrypt.compare(password, user.password);

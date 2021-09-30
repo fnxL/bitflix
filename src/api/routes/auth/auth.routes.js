@@ -1,6 +1,6 @@
 import express from 'express';
 import { celebrate, Joi } from 'celebrate';
-import { signup, login, logout, verify } from './auth.controllers';
+import { signup, login, logout, verify, inviteKey } from './auth.controllers';
 import asyncHandler from '../../middlewares/asyncHandler';
 import requireAuth from '../../middlewares/requireAuth';
 
@@ -14,6 +14,7 @@ router.post(
       lastName: Joi.string().required(),
       username: Joi.string().required(),
       password: Joi.string().required(),
+      invitekey: Joi.string().required(),
     }),
   }),
   asyncHandler(signup)
@@ -37,5 +38,7 @@ router.get('/user', requireAuth, (req, res) => {
 router.post('/logout', asyncHandler(logout));
 
 router.get('/verify', asyncHandler(verify));
+
+router.get('/invitekey', asyncHandler(inviteKey));
 
 export default router;

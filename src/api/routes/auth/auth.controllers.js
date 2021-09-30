@@ -56,3 +56,9 @@ export const verify = async (req, res) => {
     message: 'Token Valid',
   });
 };
+
+export const inviteKey = async (req, res) => {
+  logger.info(`${req.originalUrl}`);
+  const key = await authService.generateKey();
+  res.json(key);
+};

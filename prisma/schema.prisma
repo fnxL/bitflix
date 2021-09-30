@@ -20,3 +20,8 @@ model User {
   password String @db.VarChar(255)
 
 }
+
+model Key {
+  @@map(name: "keys")
+  inviteKey String @default(uuid()) @unique
+}
