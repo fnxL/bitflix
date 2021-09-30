@@ -1,28 +1,30 @@
-const { google } = require('googleapis');
-const config = require('../config');
-const { filterAndSort, sortByFileSize } = require('../utils');
+import { google } from 'googleapis';
+import config from '../config';
+import { sortByFileSize } from '../utils';
 
-class DriveAPI {
-  constructor() {
+class DriveService {
+  constructor(container) {
     if (config.token) {
       const { client_secret, client_id, redirect_uris } = config.appCredentials;
-      const oauth2Client = new google.auth.OAuth2(
-        client_id,
-        client_secret,
-        redirect_uris[0]
-      );
+
+      const oauth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+
       oauth2Client.setCredentials(config.token);
+
       this.drive = google.drive({
         version: 'v3',
         auth: oauth2Client,
       });
+      this.logger = container.get('logger');
+
+      this.logger.info('Drive Service Initialized');
     } else {
       throw new Error('No auth tokens provided');
     }
   }
 
   // get file metadata
-  getFile = async (id) => {
+  async getFile(id) {
     try {
       const { data } = await this.drive.files.get({
         fileId: id,
@@ -32,12 +34,12 @@ class DriveAPI {
 
       return data;
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
       return error;
     }
-  };
+  }
 
-  streamFile = async (id, range) => {
+  async streamFile(id, range) {
     const resp = await this.drive.files.get(
       {
         fileId: id,
@@ -70,18 +72,18 @@ class DriveAPI {
     resp.headers.Etag = id;
 
     return resp;
-  };
+  }
 
-  convertIdsToLink = (files, quality) => {
+  convertIdsToLink(files, quality) {
     files.forEach((file) => {
       const fileNameEncoded = encodeURI(file.name);
       file.url = `${config.base_url}/api/media/videoplayback/${fileNameEncoded}?id=${file.id}`;
       delete file.id;
       file.quality = `${quality}p`;
     });
-  };
+  }
 
-  createQuery = (rules) => {
+  createQuery(rules) {
     let query = '';
     Object.keys(rules).forEach((fieldName) => {
       const { contains, exclude } = rules[fieldName];
@@ -98,11 +100,11 @@ class DriveAPI {
     });
     query = query && query.slice(5);
     return query;
-  };
+  }
 
   // remove hasThumbnail false && no videoMetaData && filter by durationMillis
-  filterStreamLinks = (files, duration, type) => {
-    const threshold = type === 'movie' ? 600000 : 300000; // 10 minutes / 5 minutes
+  filterStreamLinks(files, duration, type) {
+    // const threshold = type === 'movie' ? 600000 : 300000; // 10 minutes / 5 minutes
     const filteredLinks = files.filter(({ videoMediaMetadata }) => {
       if (videoMediaMetadata) {
         return true;
@@ -111,7 +113,7 @@ class DriveAPI {
       return false;
     });
     return filteredLinks;
-  };
+  }
 
   /**
    *
@@ -122,13 +124,13 @@ class DriveAPI {
    * @returns Stream links of given file sorted by file size.
    */
 
-  getStreamLinks = async (
+  async getStreamLinks(
     cleanedFileName,
     quality,
     platform = 'web',
     isFireFox = false,
     pageSize = 100
-  ) => {
+  ) {
     /**
      * for query use format :
      * {
@@ -171,9 +173,7 @@ class DriveAPI {
       },
     };
 
-    const query = this.createQuery(
-      platform === 'web' ? queryWeb : queryAndroid
-    );
+    const query = this.createQuery(platform === 'web' ? queryWeb : queryAndroid);
 
     const {
       data: { files },
@@ -181,7 +181,7 @@ class DriveAPI {
       corpora: 'allDrives',
       includeItemsFromAllDrives: true,
       supportsAllDrives: true,
-      pageSize: pageSize,
+      pageSize,
       fields: 'files(id,name,size)',
       q: query,
     });
@@ -194,9 +194,8 @@ class DriveAPI {
     // simply sort by filesize in descending order.
     // since higher file size ==> higher bit rate ==> higher the quality of the video.
     const sortedLinks = sortByFileSize(files);
-    console.log(fileName);
     return sortedLinks;
-  };
+  }
 }
 
-module.exports = DriveAPI;
+export default DriveService;

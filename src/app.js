@@ -1,19 +1,26 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const morgan = require('morgan');
-const { notFound, errorHandler } = require('./middleware/error');
+/* eslint-disable global-require */
+import express from 'express';
+import config from './config';
+import loader from './loaders';
+import logger from './loaders/logger';
 
-const app = express();
+async function startServer() {
+  const app = express();
 
-app.use(express.json());
-app.use(cors());
-app.use(morgan('dev'));
-app.use(require('./routes'));
+  await loader({ expressApp: app }).catch((err) => console.log(err));
 
-// catch 404
-app.use(notFound);
-// error handler
-app.use(errorHandler);
+  app
+    .listen(config.port, () => {
+      logger.info(`
+    ################################################
+    🛡️  Server listening on port: ${config.port} 🛡️
+    ################################################
+  `);
+    })
+    .on('error', (err) => {
+      logger.error(err);
+      process.exit(1);
+    });
+}
 
-module.exports = app;
+startServer();

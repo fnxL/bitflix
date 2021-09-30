@@ -1,23 +1,13 @@
 {
-  "extends": ["airbnb", "prettier", "plugin:node/recommended"],
-  "plugins": ["prettier"],
-  "parser": "babel-eslint",
+  "extends": ["airbnb-base", "prettier", "plugin:prettier/recommended"],
   "parserOptions": {
-    "ecmaVersion": 2018
+    "ecmaVersion": 2020,
+    "sourceType": "module"
   },
-
   "rules": {
-    "camelcase": "off",
-    "radix": ["warn"],
-    "no-plusplus": "off",
-    "no-console": "off",
-    "no-loop-func": "off",
-    "func-names": "off",
-    "no-param-reassign": "warn",
-    "no-constant-condition": "warn",
-    "no-process-exit": "off",
-    "object-shorthand": "off",
-    "class-methods-use-this": "off",
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "req|res|next|val" }]
+    "camelcase": 0,
+    "no-unused-vars": 1,
+    "class-methods-use-this": 0,
+    "no-param-reassign": 0
   }
 }

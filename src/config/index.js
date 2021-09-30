@@ -1,10 +1,15 @@
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
 
-dotenv.config();
+// Set NODE_ENV to development by default
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-const config = {
+const env = dotenv.config();
+if (env.error) {
+  throw new Error('No .env file present');
+}
+
+export default {
   port: process.env.PORT || 5000,
-  node_env: process.env.NODE_ENV,
   databaseURL: process.env.DATABASE_URL,
   base_url: process.env.BASE_URL,
   appCredentials: {
@@ -23,6 +28,12 @@ const config = {
     token_type: 'Bearer',
     expiry_date: 1630265945478,
   },
+  api: {
+    prefix: '/api',
+  },
+  opensubtitles: {
+    username: process.env.OS_USERNAME,
+    password: process.env.OS_PASSWORD,
+  },
+  jwtSecret: process.env.JWT_SECRET,
 };
-
-module.exports = config;

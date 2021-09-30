@@ -1,14 +1,21 @@
-const DriveAPI = require('../../services/drive');
-const SubtitlesService = require('../../services/subtitles');
-const { cleanFileName, getSearchTerm } = require('../../utils');
+import typedi from 'typedi';
+import DriveService from '../../../services/DriveService';
+import SubtitlesService from '../../../services/SubtitlesService';
+import { cleanFileName, getSearchTerm } from '../../../utils';
 
-const subtitles = new SubtitlesService();
+const { Container } = typedi;
 
-const drive = new DriveAPI();
+const logger = Container.get('logger');
 
-const videoplayback = async (req, res) => {
+const subtitles = Container.get(SubtitlesService);
+
+const drive = Container.get(DriveService);
+
+export const videoplayback = async (req, res) => {
   const { id } = req.query;
   const { range } = req.headers;
+
+  logger.info(req.originalUrl);
 
   if (id && range) {
     //
@@ -19,18 +26,20 @@ const videoplayback = async (req, res) => {
     //
   } else {
     res.status(400);
+    logger.error('Invalid request -> Missing ID or Range Headers');
     throw new Error('Invalid request -> Missing ID or range headers');
   }
 };
 
-const retreiveStreamLinks = async (req, res) => {
+export const retreiveStreamLinks = async (req, res) => {
   const { metadata, platform, isFireFox } = req.query;
-  const obj = JSON.parse(Buffer.from(metadata, 'base64').toString('ascii'));
+  const obj = JSON.parse(Buffer.from(metadata, 'base64'));
 
-  const { title, season_number, episode_number, year, episode_name, type } =
-    obj;
+  const { title, season_number, episode_number, year, episode_name, type } = obj;
 
   const cleanedTitle = cleanFileName(title);
+
+  logger.info(`Fetching links for ${cleanedTitle}`);
 
   const searchTerm = getSearchTerm(cleanedTitle, type, {
     season_number,
@@ -81,20 +90,16 @@ const retreiveStreamLinks = async (req, res) => {
     res.json(links);
   } else {
     res.status(400);
+    logger.error('Invalid Params');
     throw new Error('Invalid Parameters');
   }
 };
 
-const getSubtitles = async (req, res) => {
+export const getSubtitles = async (req, res) => {
   const { metadata } = req.query;
   const obj = JSON.parse(Buffer.from(metadata, 'base64').toString('ascii'));
+  logger.info(`Retreving SRT file from opensubtitles.org for ${obj.filename}`);
 
   const subs = await subtitles.getSubs(obj);
   res.json(subs);
-};
-
-module.exports = {
-  videoplayback,
-  retreiveStreamLinks,
-  getSubtitles,
 };

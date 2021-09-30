@@ -1,5 +1,5 @@
-const express = require('express');
-const { getAuthUrl, handleCallback } = require('./validateapp.controller');
+import express from 'express';
+import { getAuthUrl, handleCallback } from './authApp.controller';
 
 const router = express.Router();
 
@@ -17,4 +17,4 @@ router.get('/authurl', getAuthUrl);
  */
 router.get('/callback', handleCallback);
 
-module.exports = router;
+export default router;
