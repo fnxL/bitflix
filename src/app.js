@@ -7,7 +7,7 @@ import logger from './loaders/logger';
 async function startServer() {
   const app = express();
 
-  await loader({ expressApp: app }).catch((err) => console.log(err));
+  await loader({ expressApp: app }).catch((err) => logger.error(err));
 
   app
     .listen(config.port, () => {
