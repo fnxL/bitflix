@@ -5,9 +5,6 @@
 // 5. WEBRip
 // 6. HDRip
 
-const { mockData1080, mockData720 } = require('../mockdata');
-
-//
 const sortOrder = [
   ['bluray', '10bit', 'hdr'],
   ['bluray', 'hdr'],
@@ -40,7 +37,7 @@ const keywords = [
   'hdrip',
 ];
 
-const detectKeywords = (string) => {
+export const detectKeywords = (string) => {
   const detectedkeywordsList = [];
   keywords.forEach((e) => {
     // perform exact word match  for these so they don't interfere with rest of acronyms
@@ -57,7 +54,7 @@ const detectKeywords = (string) => {
   return detectedkeywordsList;
 };
 
-const getIndexOf = (keywordList, order) => {
+export const getIndexOf = (keywordList, order) => {
   let result;
   for (let i = 0; i < order.length; i++) {
     let found = true;
@@ -78,7 +75,7 @@ const getIndexOf = (keywordList, order) => {
   return result;
 };
 
-const sortBy = (files, order) => {
+export const sortBy = (files, order) => {
   const newList = files.sort((a, b) => {
     // handle for lists split by `.`
     const fileA = a.name.toLowerCase();
@@ -133,7 +130,7 @@ const sortBy = (files, order) => {
 //   console.log(keywordss);
 // });
 
-const sortByFileSize = (files) => {
+export const sortByFileSize = (files) => {
   const sorted = files.sort((a, b) => {
     const sizeA = parseInt(a.size, 10);
     const sizeB = parseInt(b.size, 10);
@@ -142,7 +139,7 @@ const sortByFileSize = (files) => {
   return sorted;
 };
 
-const filterAndSort = (files, fileName) => {
+export const filterAndSort = (files, fileName) => {
   const keywordsx = fileName.split(' ');
   const keywordsArray = keywordsx.map((word) => word.toLowerCase());
   const fileArray = files.map((file) => ({
@@ -164,7 +161,7 @@ const filterAndSort = (files, fileName) => {
   return sortByFileSize(filtered);
 };
 
-const cleanFileName = (str) => {
+export const cleanFileName = (str) => {
   const stripPunct = str.replace(
     /(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|"|:|'|<|,|\|>|\?|\/|\\|\||-|_|\+|=)/g,
     ''
@@ -172,23 +169,14 @@ const cleanFileName = (str) => {
   const cleanabr = stripPunct.replace(/.(?:\.[A-Za-z]\.[A-Za-z])/gm, ''); // remove abbreviations
 
   const trailing = cleanabr.replace(/^[ \t]+|[ \t]+$/gm, '');
-  return trailing.replace(/[0-9]/g, ''); // remove numbers
+  return trailing;
 };
 
-const getSearchTerm = (title, type, options = {}) => {
+export const getSearchTerm = (title, type, options = {}) => {
   const { year, season_number, episode_number } = options;
   if (type === 'tv')
-    return `${title} S${
-      season_number < 10 ? `0${season_number}` : season_number
-    }E${episode_number < 10 ? `0${episode_number}` : episode_number}`;
+    return `${title} S${season_number < 10 ? `0${season_number}` : season_number}E${
+      episode_number < 10 ? `0${episode_number}` : episode_number
+    }`;
   return `${title} ${year}`;
-};
-
-module.exports = {
-  sortBy,
-  sortOrder,
-  getSearchTerm,
-  sortByFileSize,
-  filterAndSort,
-  cleanFileName,
 };
