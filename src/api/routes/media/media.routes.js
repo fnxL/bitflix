@@ -1,7 +1,6 @@
 import express from 'express';
 import asyncHandler from '../../middlewares/asyncHandler';
 import { getSubtitles, retreiveStreamLinks, videoplayback } from './media.controller';
-import requireAuth from '../../middlewares/requireAuth';
 
 const router = express.Router();
 
@@ -10,7 +9,7 @@ const router = express.Router();
  *  @desc     stream videos
  *  @params   fileName, id
  */
-router.get('/videoplayback/:name', requireAuth, asyncHandler(videoplayback));
+router.get('/videoplayback/:name', asyncHandler(videoplayback));
 
 /*
  *  GET /api/media/streamlinks?fileName
@@ -18,8 +17,8 @@ router.get('/videoplayback/:name', requireAuth, asyncHandler(videoplayback));
  *  @param   fileName, duration (in ms), type (movie/show), pageSize = 100
  *  @fileName - <title> <year> <quality> ex: 'Mulan 2020 1080'
  */
-router.get('/streamlinks', requireAuth, asyncHandler(retreiveStreamLinks));
+router.get('/streamlinks', asyncHandler(retreiveStreamLinks));
 
-router.get('/subtitles', requireAuth, asyncHandler(getSubtitles));
+router.get('/subtitles', asyncHandler(getSubtitles));
 
 export default router;

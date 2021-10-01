@@ -9,6 +9,12 @@ class AuthService {
     this.logger.info('Auth Service Initialized');
   }
 
+  async getInviteKeys() {
+    this.logger.info('Getting all invite keys...');
+    const keys = this.prisma.key.findMany();
+    return keys;
+  }
+
   async generateKey() {
     this.logger.info('Generating one time invite key...');
     const key = this.prisma.key.create({

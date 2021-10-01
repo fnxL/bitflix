@@ -57,8 +57,14 @@ export const verify = async (req, res) => {
   });
 };
 
-export const inviteKey = async (req, res) => {
+export const generatekey = async (req, res) => {
   logger.info(`${req.originalUrl}`);
   const key = await authService.generateKey();
   res.json(key);
+};
+
+export const getInviteKeys = async (req, res) => {
+  logger.info(`${req.originalUrl}`);
+  const keys = await authService.getInviteKeys();
+  res.json({ keys });
 };

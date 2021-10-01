@@ -99,7 +99,6 @@ export const getSubtitles = async (req, res) => {
   const { metadata } = req.query;
   const obj = JSON.parse(Buffer.from(metadata, 'base64').toString('ascii'));
   logger.info(`Retreving SRT file from opensubtitles.org for ${obj.filename}`);
-
   const subs = await subtitles.getSubs(obj);
   res.json(subs);
 };

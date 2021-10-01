@@ -1,8 +1,8 @@
 import express from 'express';
 import { celebrate, Joi } from 'celebrate';
-import { signup, login, logout, verify, inviteKey } from './auth.controllers';
+import { signup, login, logout, verify, generatekey, getInviteKeys } from './auth.controllers';
 import asyncHandler from '../../middlewares/asyncHandler';
-import requireAuth from '../../middlewares/requireAuth';
+import requireAuth, { isAdmin } from '../../middlewares/requireAuth';
 
 const router = express.Router();
 
@@ -31,14 +31,12 @@ router.post(
   asyncHandler(login)
 );
 
-router.get('/user', requireAuth, (req, res) => {
-  res.send({ message: 'Welcome Back' });
-});
-
 router.post('/logout', asyncHandler(logout));
 
 router.get('/verify', asyncHandler(verify));
 
-router.get('/invitekey', asyncHandler(inviteKey));
+router.get('/generatekey', isAdmin, asyncHandler(generatekey));
+
+router.get('/invitekeys', isAdmin, asyncHandler(getInviteKeys));
 
 export default router;
