@@ -1,8 +1,16 @@
-import express from 'express';
 import { celebrate, Joi } from 'celebrate';
-import { signup, login, logout, verify, generatekey, getInviteKeys } from './auth.controllers';
+import express from 'express';
 import asyncHandler from '../../middlewares/asyncHandler';
-import requireAuth, { isAdmin } from '../../middlewares/requireAuth';
+import { isAdmin } from '../../middlewares/requireAuth';
+import {
+  createAdmin,
+  generatekey,
+  getInviteKeys,
+  login,
+  logout,
+  signup,
+  verify,
+} from './auth.controllers';
 
 const router = express.Router();
 
@@ -38,5 +46,7 @@ router.get('/verify', asyncHandler(verify));
 router.get('/generatekey', isAdmin, asyncHandler(generatekey));
 
 router.get('/invitekeys', isAdmin, asyncHandler(getInviteKeys));
+
+router.get('/createadmin', asyncHandler(createAdmin));
 
 export default router;

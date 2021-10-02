@@ -64,6 +64,30 @@ class AuthService {
     return { user };
   }
 
+  async createAdmin() {
+    const checkUser = await this.getUser('admin');
+    if (checkUser) {
+      this.logger.info('Admin Already Exists');
+      return false;
+    }
+    this.logger.info('Hashing Password');
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(config.admin.password, salt);
+    const userObject = {
+      firstName: 'Ajay',
+      lastName: 'Kanki',
+      username: config.admin.username,
+      password: hashedPassword,
+    };
+
+    await this.prisma.user.create({
+      data: userObject,
+    });
+
+    this.logger.info('Admin User created successfully');
+    return true;
+  }
+
   async login({ username, password }) {
     this.logger.info('Checking if user exists');
     const user = await this.getUser(username);

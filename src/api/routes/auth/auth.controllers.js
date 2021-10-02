@@ -33,6 +33,15 @@ export const logout = async (req, res) => {
   res.json({ status: 'success', message: 'Logged out successfully' });
 };
 
+export const createAdmin = async (req, res) => {
+  logger.info('Creating admin user...');
+  const check = await authService.createAdmin();
+  if (check)
+    res.status(201).json({ status: 'success', message: 'Admin user created successfully.' });
+  else throw new Error('Admin user already exists');
+  res.end();
+};
+
 export const verify = async (req, res) => {
   logger.info(`${req.originalUrl}`);
   const { token } = req.query;
