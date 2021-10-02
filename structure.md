@@ -7,9 +7,9 @@
 //PORT TO ANDROID TO SUPPORT x265.
 
 api/streamlinks(name,year) Schema = {
-"720": [strings], //10 links
-"1080": [strings],
-"2160": [strings]
+
+"1080": [strings], //5 links
+
 }
 
 1. Backend
