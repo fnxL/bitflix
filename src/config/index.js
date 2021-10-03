@@ -1,12 +1,12 @@
-// Set NODE_ENV to development by default
-import dotenv from 'dotenv';
+// // Set NODE_ENV to development by default
+// import dotenv from 'dotenv';
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-const env = dotenv.config();
-if (env.error) {
-  throw new Error('No .env file present');
-}
+// const env = dotenv.config();
+// if (env.error) {
+//   throw new Error('No .env file present');
+// }
 
 export default {
   port: process.env.PORT || 5000,
