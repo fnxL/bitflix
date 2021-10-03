@@ -60,6 +60,7 @@ export const verify = async (req, res) => {
       message: 'User does not exists.',
     });
   }
+  logger.info('valid user!');
   res.status(200).json({
     status: 'success',
     message: 'Valid user',

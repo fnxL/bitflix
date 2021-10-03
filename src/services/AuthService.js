@@ -124,12 +124,10 @@ class AuthService {
   async verify(token) {
     this.logger.info('Verifying user...');
     const check = jwt.verify(token, config.jwtSecret);
-    this.logger.info('Token expired or invalid!');
 
     if (!check) throw new Error('invalid_token');
-    const decoded = jwt.decode(token);
 
-    const user = this.getUser(decoded.username);
+    const user = this.getUser(check.username);
 
     if (user) return true;
 
