@@ -35,7 +35,7 @@ export default ({ app }) => {
   app.use(
     cors({
       credentials: true,
-      origin: ['http://localhost:3000', 'https://bitflix.pages.dev'],
+      origin: ['http://localhost:3000', 'https://localhost:3000', 'https://bitflix.pages.dev'],
     })
   );
 
