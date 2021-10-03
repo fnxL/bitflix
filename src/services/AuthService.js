@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { decode } from 'jsonwebtoken';
 import config from '../config';
 
 class AuthService {
@@ -122,7 +122,18 @@ class AuthService {
   }
 
   async verify(token) {
-    return jwt.verify(token, config.jwtSecret);
+    this.logger.info('Verifying user...');
+    const check = jwt.verify(token, config.jwtSecret);
+    this.logger.info('Token expired or invalid!');
+
+    if (!check) throw new Error('invalid_token');
+    const decoded = jwt.decode(token);
+
+    const user = this.getUser(decoded.username);
+
+    if (user) return true;
+
+    return false;
   }
 
   async getUser(username) {

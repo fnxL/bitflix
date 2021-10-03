@@ -52,17 +52,17 @@ export const verify = async (req, res) => {
     });
   }
 
-  const verify_token = await authService.verify(token);
+  const verify_user = await authService.verify(token);
 
-  if (!verify_token) {
-    return res.status(401).send({
-      status: 'invalid_token',
-      message: 'Invalid or expired token',
+  if (!verify_user) {
+    return res.status(400).send({
+      status: 'invalid_user',
+      message: 'User does not exists.',
     });
   }
   res.status(200).json({
     status: 'success',
-    message: 'Token Valid',
+    message: 'Valid user',
   });
 };
 
