@@ -21,6 +21,7 @@ export const login = async (req, res) => {
 
   res.cookie('x-auth-token', token, {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    sameSite: 'None',
   });
 
   res.json({ user, token, status: 'success', message: 'Logged in successfully!' });
@@ -29,7 +30,7 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
   logger.info(`${req.originalUrl}`);
 
-  res.cookie('x-auth-token', '', { maxAge: 0 });
+  res.cookie('x-auth-token', '', { maxAge: 0, sameSite: 'None' });
   res.json({ status: 'success', message: 'Logged out successfully' });
 };
 
@@ -76,5 +77,5 @@ export const generatekey = async (req, res) => {
 export const getInviteKeys = async (req, res) => {
   logger.info(`${req.originalUrl}`);
   const keys = await authService.getInviteKeys();
-  res.json({ keys });
+  res.json({ status: 'success', keys });
 };
