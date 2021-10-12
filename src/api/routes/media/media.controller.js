@@ -17,7 +17,7 @@ export const videoplayback = async (req, res) => {
 
   logger.info(req.originalUrl);
 
-  if (id && range) {
+  if (id) {
     //
     const response = await drive.streamFile(id, range);
     res.status(206);
