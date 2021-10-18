@@ -148,18 +148,7 @@ class DriveService {
       },
       fullText: {
         contains: [`${fileName}`],
-        exclude: [
-          'dual',
-          'hindi',
-          'sample',
-          'x265',
-          'hevc',
-          'h265',
-          'yify',
-          'yts',
-          'dubbed',
-          'rus',
-        ],
+        exclude: ['dual', 'sample', 'x265', 'hevc', 'h265', 'yify', 'yts', 'dubbed', 'rus'],
       },
     };
 
