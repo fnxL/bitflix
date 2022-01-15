@@ -25,6 +25,7 @@ export default {
     auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
     client_secret: process.env.CLIENT_SECRET,
     redirect_uris: ["http://localhost:5000/api/validateapp/callback"],
+    scope: ["https://www.googleapis.com/auth/drive"],
   },
   /* 
     Google account credentials
