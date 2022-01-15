@@ -18,6 +18,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use(cookieParser());
 
+app.disable("x-powered-by");
+
 // Enable Cross Origin Resource Sharing to all origins by default
 app.use(
   cors({

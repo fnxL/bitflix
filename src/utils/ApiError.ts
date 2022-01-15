@@ -1,6 +1,6 @@
-import { CelebrateError, isCelebrateError } from "celebrate";
+import { isCelebrateError } from "celebrate";
 import { NextFunction, Request, Response } from "express";
-import logger from "../utils/logger";
+import { Status } from "./Status";
 
 export class ApiError extends Error {
   statusCode;
@@ -29,7 +29,7 @@ export const handleError = (err: any, res: Response) => {
     const errorBody = err.details.get("body");
     statusCode = 400;
     const result = {
-      status: "error",
+      status: Status.ERROR,
       statusCode,
       message: errorBody?.details[0].message,
     };
@@ -41,13 +41,13 @@ export const handleError = (err: any, res: Response) => {
 
   if (process.env.NODE_ENV === "production") {
     res.json({
-      status: "error",
+      status: Status.ERROR,
       statusCode,
       message,
     });
   } else {
     res.json({
-      status: "error",
+      status: Status.ERROR,
       statusCode,
       message,
       stack: err.stack,

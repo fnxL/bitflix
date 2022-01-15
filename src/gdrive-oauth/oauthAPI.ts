@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import { Container } from "typedi";
 import GDriveService from "./oauthService";
 import { ApiError } from "../utils/ApiError";
+import { Status } from "../utils/Status";
 
 const router = express.Router();
 const gdriveService = Container.get(GDriveService);
@@ -14,7 +15,7 @@ const gdriveService = Container.get(GDriveService);
 router.get("/url", async (req: Request, res: Response) => {
   const url = await gdriveService.generateAuthUrl();
   res.json({
-    status: "success",
+    status: Status.SUCCESS,
     url,
   });
 });
@@ -27,7 +28,7 @@ router.get("/callback", async (req: Request, res: Response) => {
   if (req.query.code) {
     const tokens = await gdriveService.getTokens(req.query.code as string);
     res.json({
-      status: "success",
+      status: Status.SUCCESS,
       data: tokens,
     });
   } else throw new ApiError(400, "No code provided for token exchange");

@@ -6,12 +6,15 @@ import { ApiError } from "../utils/ApiError";
 import AuthService from "./authService";
 import jwt from "jsonwebtoken";
 import config from "../../config/default";
+import { Status } from "../utils/Status";
 
 const authService = Container.get(AuthService);
 
 export const signUp = async (req: Request, res: Response) => {
   const user = await authService.signUp(req.body as NewUser);
-  res.status(201).json({ user, status: "success", message: "Account registered successfully!" });
+  res
+    .status(201)
+    .json({ user, status: Status.SUCCESS, message: "Account registered successfully!" });
 };
 
 export const login = async (req: Request, res: Response) => {
@@ -26,7 +29,7 @@ export const login = async (req: Request, res: Response) => {
   });
 
   res.status(200).json({
-    status: "success",
+    status: Status.SUCCESS,
     message: "Logged in successfully!",
     ...data,
   });
@@ -41,7 +44,7 @@ export const logout = async (req: Request, res: Response) => {
       httpOnly: true,
     });
     res.json({
-      status: "success",
+      status: Status.SUCCESS,
       message: "Logged out successfully!",
     });
   } else {
@@ -60,7 +63,7 @@ export const token = async (req: Request, res: Response) => {
         const accessToken = authService.generateAccessToken(user as NewUser);
 
         res.json({
-          status: "success",
+          status: Status.SUCCESS,
           accessToken,
         });
       });
@@ -73,7 +76,7 @@ export const token = async (req: Request, res: Response) => {
 export const generateKey = async (req: Request, res: Response) => {
   const key = await authService.generateKey();
   res.status(201).json({
-    status: "success",
+    status: Status.SUCCESS,
     message: "Invite key generated successfully!",
     ...(key as {}),
   });
@@ -82,7 +85,7 @@ export const generateKey = async (req: Request, res: Response) => {
 export const getKeys = async (req: Request, res: Response) => {
   const keys = await authService.getInviteKeys();
   res.status(200).json({
-    status: "success",
+    status: Status.SUCCESS,
     keys,
   });
 };
@@ -91,7 +94,7 @@ export const createAdmin = async (req: Request, res: Response) => {
   const check = await authService.createAdmin();
   if (check) {
     return res.status(201).json({
-      status: "success",
+      status: Status.SUCCESS,
       message: "Admin user created successfully",
     });
   }
