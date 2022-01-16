@@ -18,10 +18,21 @@ model User {
   lastName String @db.VarChar(255)
   username String @db.VarChar(255) @unique
   password String @db.VarChar(255)
+  email String @db.VarChar(255) @unique @default("")
+  role Role @default(USER)
+  
+}
 
+model RefreshToken {
+  token String @unique
 }
 
 model Key {
   @@map(name: "keys")
   inviteKey String @default(uuid()) @unique
+}
+
+enum Role {
+  USER
+  ADMIN
 }
