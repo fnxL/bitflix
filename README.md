@@ -1,14 +1,14 @@
 # Bitflix
 
-A fullstack working clone of netflix built over Google Drive API & Next.js to stream any title in highest possible quality.
+A fullstack OTT Streaming platform built over Google Drive API & Next.js to stream any title (most) in highest possible quality.
 
 ## 🎯 About
 
-This is a fully functional video streaming OTT platform designed to have same the experience as Netflix.
+This is a fully functional video streaming OTT platform.
 
-You can choose to click on any title/show/movie to stream in the highest possible quality (likes of 4K, REMUXES, Bluray, HDR 10bit, etc if available) with English Subtitles (if any).
+You can choose to click on any title/show/movie to stream in the highest possible quality (likes of 4K, REMUXES, Bluray, HDR 10bit, etc if available) with support for English Subtitles (if any).
 
-Since the WEB only supports video files which are encoded with x264 codec and firefox only supports .mp4 containers the search is limited to x264 video files so the WEB version has less content than the Android version.
+Since the most web browsers only supports playback of video files which are encoded with x264 codec and firefox only supports .mp4 containers so the search is limited to x264 video files so the WEB version has might have less content than the Android version.
 
 The files are sourced direclty from my Google Drive and sizes range anywhere from 10GB to 80GB.
 
@@ -26,6 +26,8 @@ The main motive for this project is to watch content in highest possible quality
 
 ### Process Flow:
 
+// TODO - Flow Diagram & Database Schema
+
 User Clicks a movie/show  
 --> Client sends request to server with required details to fetch streamlinks  
 --> Server makes a search request under the hood to Google Drive to find video files corresponding to the title  
@@ -38,18 +40,15 @@ This is possible because of the route which streams/serves the video files direc
 
 ## ✨ Features
 
-✔️ Real netflix experience.  
 ✔️ Responsive Layout  
-✔️ Optimized for maximum performance and least api requests possible.  
+✔️ Optimized for maximum performance.
 ✔️ Search for movies and tv shows  
 ✔️ Movie/TV Shows recommendations  
 ✔️ Stream movies & tv show in highest possible quality.  
 ✔️ Ability to change quality & video source.  
 ✔️ VTT subtitles support from opensubtitles.org (SRT files are converted to VTT on the fly)  
-✔️ Awesome netflix like trailer video banner  
 ✔️ Ability to sign up and sign in  
-✔️ Save watch progress and watch list.  
-✔️ Automatic Trailer Playback
+✔️ Save watch progress and create as many lists as you want.
 
 ## 🚀 Technologies
 
@@ -95,12 +94,10 @@ This is possible because of the route which streams/serves the video files direc
 
 ## To do
 
-- Setup Authentication System and Protect routes
-- Abstract Logic from Components , Clean and refactor existing code.
 - Multiple Profile System for each user.
 - Extract AudioTracks from VideoContainer using the experimental AudioTracks API.
 - Play next episode automatically.
-- Design a tracking system for tv/shows, watch progress or Integrate with trakt.tv
+- Design a tracking system for tv/shows, watch progress / Integrate with trakt.tv
 - Resume video from where user last left off.
 
 ## Acknowledgements
