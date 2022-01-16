@@ -5,7 +5,7 @@ import MediaService from "./mediaService";
 import { getSearchTerm } from "../utils/utils";
 import { ApiError } from "../utils/ApiError";
 import { Platform } from "../interfaces/Media/Platform";
-import { Quality } from "../interfaces/Media/quality";
+import { Quality } from "../interfaces/Media/Quality";
 import { Links } from "../interfaces/Media/File";
 import { IStreamLinks } from "../interfaces/Media/IStreamLinks";
 

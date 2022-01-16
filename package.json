@@ -2,10 +2,11 @@
   "name": "bitfllix",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/app.ts"
+    "start": "node build/src/app.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "build": "tsc -p ."
   },
   "keywords": [],
   "author": "",

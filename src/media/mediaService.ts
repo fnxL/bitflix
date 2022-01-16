@@ -5,7 +5,7 @@ import { drive_v3, google } from "googleapis";
 import { SearchParams } from "../interfaces/Media/SearchParams";
 import { Platform } from "../interfaces/Media/Platform";
 import { File } from "../interfaces/Media/File";
-import { Quality } from "../interfaces/Media/quality";
+import { Quality } from "../interfaces/Media/Quality";
 
 @Service()
 class MediaService {

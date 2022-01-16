@@ -1,4 +1,4 @@
-import { Quality } from "./quality";
+import { Quality } from "./Quality";
 
 export interface File {
   name?: string;
