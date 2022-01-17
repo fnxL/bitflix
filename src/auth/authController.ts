@@ -9,6 +9,7 @@ import config from "../../config/default";
 import { Status } from "../utils/Status";
 
 const authService = Container.get(AuthService);
+const logger = Container.get("logger");
 
 export const signUp = async (req: Request, res: Response) => {
   const user = await authService.signUp(req.body as NewUser);
@@ -53,23 +54,29 @@ export const logout = async (req: Request, res: Response) => {
 };
 
 export const token = async (req: Request, res: Response) => {
-  const refreshToken = req.cookies["refreshToken"] as string;
+  const refreshToken = (req.cookies["refreshToken"] as string) || (req.body.token as string);
   if (refreshToken) {
     const tokenExists = await authService.checkRefreshToken(refreshToken);
     if (tokenExists) {
-      jwt.verify(refreshToken, config.secret.refresh_token_secret!, (err, user) => {
-        if (err) throw new ApiError(403, "Forbidden");
-
-        const accessToken = authService.generateAccessToken(user as NewUser);
-
+      jwt.verify(refreshToken, config.secret.refresh_token_secret!, (err, decoded) => {
+        if (err) throw new ApiError(401, "Session Expired");
+        const user = decoded as NewUser;
+        const accessToken = authService.generateAccessToken({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          username: user.username,
+          role: user.role,
+        } as NewUser);
         res.json({
           status: Status.SUCCESS,
           accessToken,
         });
       });
+    } else {
+      throw new ApiError(401, "Unauthorized");
     }
   } else {
-    throw new ApiError(403, "Forbidden");
+    throw new ApiError(401, "Unauthorized");
   }
 };
 

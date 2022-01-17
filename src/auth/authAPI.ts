@@ -12,7 +12,7 @@ router.post("/signup", SignUpValidation, signUp);
 router.post("/login", LoginValidation, login);
 
 /** Get accessToken */
-router.get("/token", token);
+router.post("/token", token);
 
 router.delete("/logout", logout);
 

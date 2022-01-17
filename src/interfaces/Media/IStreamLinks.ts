@@ -3,7 +3,6 @@ export interface IStreamLinks {
   year?: string;
   seasonNumber?: number;
   episodeNumber?: number;
-  episodeName?: string;
   platform: string;
   isFireFox?: Boolean;
   type: string;

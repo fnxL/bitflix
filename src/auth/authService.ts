@@ -159,7 +159,9 @@ class AuthService {
 
   generateAccessToken(userData: NewUser) {
     this.logger.info(`Signing JWT for user: ${userData.username}`);
-    return jwt.sign({ ...userData }, config.secret.access_token_secret!, { expiresIn: "5s" });
+    return jwt.sign(userData, config.secret.access_token_secret!, {
+      expiresIn: config.secret.expires,
+    });
   }
 
   /* Verify JWT */
