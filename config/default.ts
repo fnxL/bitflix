@@ -11,7 +11,7 @@ export default {
   port: process.env.PORT || 5000,
 
   databaseURL: process.env.DATABASE_URL,
-
+  environment: process.env.NODE_ENV,
   base_url:
     process.env.NODE_ENV === "development" ? "http://192.168.1.64:5000" : process.env.BASE_URL,
   /* 

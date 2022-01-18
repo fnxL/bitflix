@@ -1,5 +1,4 @@
-import { Platform } from "./Platform";
-import { Quality } from "./Quality";
+import { Platform, Quality } from "..";
 
 export interface SearchParams {
   fileName: string;

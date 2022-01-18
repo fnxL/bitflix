@@ -1,14 +1,13 @@
 import "reflect-metadata";
-import loggerInstance from "../utils/logger";
 import prismaClient from "./database";
 import { Container } from "typedi";
+import { FastifyLoggerInstance } from "fastify";
 
-export default () => {
+export default (logger: FastifyLoggerInstance) => {
   try {
-    Container.set("logger", loggerInstance);
     Container.set("prisma", prismaClient);
+    Container.set("logger", logger);
   } catch (e) {
-    loggerInstance.error("Error on dependency injector loader: " + e);
     throw e;
   }
 };

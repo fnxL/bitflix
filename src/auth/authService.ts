@@ -1,16 +1,16 @@
 import { Prisma, PrismaClient, Role } from "@prisma/client";
-import pino from "pino";
-import { Service, Inject } from "typedi";
-import { NewUser } from "../interfaces/User/NewUser";
-import { ApiError } from "../utils/ApiError";
-import config from "../../config/default";
 import bcrypt from "bcrypt";
+import { FastifyLoggerInstance } from "fastify";
 import jwt from "jsonwebtoken";
+import { Inject, Service } from "typedi";
+import config from "../../config/default";
+import { UserType } from "../types-and-schemas";
+import { ApiError } from "../utils/ApiError";
 
 @Service()
 class AuthService {
   constructor(
-    @Inject("logger") private logger: pino.Logger,
+    @Inject("logger") private logger: FastifyLoggerInstance,
     @Inject("prisma") private prisma: PrismaClient
   ) {
     logger.info("AuthService Initialized...");
@@ -35,7 +35,7 @@ class AuthService {
   }
 
   /* Sign Up a user */
-  async signUp({ inviteKey, password, ...rest }: NewUser): Promise<NewUser> {
+  async signUp({ inviteKey, password, ...rest }: UserType): Promise<UserType> {
     this.logger.info("Checking if inviteKey is valid");
     const getInviteKey = await this.prisma.key.findUnique({
       where: {
@@ -153,11 +153,11 @@ class AuthService {
     });
   }
 
-  generateRefreshToken(userData: NewUser) {
+  generateRefreshToken(userData: UserType) {
     return jwt.sign(userData, config.secret.refresh_token_secret!);
   }
 
-  generateAccessToken(userData: NewUser) {
+  generateAccessToken(userData: UserType) {
     this.logger.info(`Signing JWT for user: ${userData.username}`);
     return jwt.sign(userData, config.secret.access_token_secret!, {
       expiresIn: config.secret.expires,
