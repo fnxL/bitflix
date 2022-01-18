@@ -38,76 +38,31 @@ This is possible because of the route which streams/serves the video files direc
 
 **This project is intended to be used for personal use only and will not be made public for obvious legal reasons.**
 
-## ✨ Features
-
-✔️ Responsive Layout  
-✔️ Optimized for maximum performance.
-✔️ Search for movies and tv shows  
-✔️ Movie/TV Shows recommendations  
-✔️ Stream movies & tv show in highest possible quality.  
-✔️ Ability to change quality & video source.  
-✔️ VTT subtitles support from opensubtitles.org (SRT files are converted to VTT on the fly)  
-✔️ Ability to sign up and sign in  
-✔️ Save watch progress and create as many lists as you want.
-
 ## 🚀 Technologies
-
-### Front End
-
-- [Next.js 11](https://nextjs.org/)
-- [React](https://reactjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/docs/guides/create-react-app)
-- [React Query](https://react-query.tanstack.com/) - For DataFetching
-- [Zustand](https://github.com/pmndrs/zustand) - Simple and intuitive global state manager for react
-- [srt-webvtt](https://www.npmjs.com/package/srt-webvtt) - Convert SRT to VTT on the fly
-- [SwiperJS](https://swiperjs.com/) - Slider
-- [ReactPlayer](https://www.npmjs.com/package/react-player) - Main Player for Videos
-- [React-Youtube](https://www.npmjs.com/package/react-youtube) - Embedding youtube trailers as background
-- [React-Hook-Form](https://react-hook-form.com/) - For easy form validation/handling.
-- [js-base64](https://www.npmjs.com/package/js-base64) - base64 transcoder
 
 ### Back End
 
-- [NodeJS > 14.17.5](http://nodejs.org)
-- [Express](http://expressjs.com/) - For Simple and Robust APIs
+- [NodeJS](http://nodejs.org)
+- [Fastify](https://www.fastify.io/) - Fast and low overhead web framework, for Node.js
 - [PostgreSQL](https://www.postgresql.org/) - as RDB.
 - [Prisma](https://www.prisma.io/) - Next-gen ORM for PostgreSQL
-- [GoogleAPIs](http://expressjs.com/) - To communicate with Drive API
-- [Celebrate](https://www.npmjs.com/package/celebrate) - For input validation
-- [typedi](https://www.npmjs.com/package/typedi) - Dependency Injection library and to cache class instances of services.
+- [GoogleAPIs](https://googleapis.dev/nodejs/googleapis/latest/) - To communicate with Drive API
+- [JSONSchema](https://www.npmjs.com/package/celebrate) - For input validation
+- [typedi](https://www.npmjs.com/package/typedi) - Dependency Injection library
 - [Pino](https://getpino.io/#/) - Logging service
 - [opensubtitles-api](https://www.npmjs.com/package/opensubtitles-api) - opensubtitles.org api wrapper for nodejs to get subtitles of specific titles.
-
-## Screenshots
-
-### Home Page
-
-![picture 2](https://i.imgur.com/lPta3s3.jpg)
-
-## Details Page
-
-![picture 5](https://i.imgur.com/xh2r0n4.jpg)
-
-## Video Player
-
-![picture 6](https://i.imgur.com/Pj53ojm.jpg)
+- [typebox](https://www.npmjs.com/package/@sinclair/typebox) - For creating JSONSchemas & types in one go
 
 ## To do
 
-- Multiple Profile System for each user.
-- Extract AudioTracks from VideoContainer using the experimental AudioTracks API.
-- Play next episode automatically.
-- Design a tracking system for tv/shows, watch progress / Integrate with trakt.tv
-- Resume video from where user last left off.
+- Multiple Profiles for each user
+- Design a tracking system for tv/shows, watch progress
+- Add features to create watch lists
+- Integrate with trakt.
 
 ## Acknowledgements
 
-- [Fakeflix](https://github.com/Th3Wall/Fakeflix) - Thanks to FakeFlix as many components like navbar, row slider, rowposter, skeletons have been taken directly from this repo.
-- [Cloudflare Pages](https://pages.cloudflare.com/) - To allow hosting on their fast global edge network
 - [Google Drive API reference](https://developers.google.com/drive/api/v3/reference)
 - [Heroku](https://heroku.com) - For backend deployment
-- [TMDB API](https://developers.themoviedb.org/3) - Th!
-  anks to their free open source api for movies/shows index.
-- [Fanart API](http://fanart.tv/) - For HD tv/movie logos
 - [Media Type and format guide](https://developer.mozilla.org/en-US/docs/Web/Media/Formats)
 - [Partial Content & Range Requests](https://medium.com/@vishal1909/how-to-handle-partial-content-in-node-js-8b0a5aea216)
