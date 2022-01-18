@@ -1,38 +1,45 @@
+import { FastifyReply } from "fastify";
 import "reflect-metadata";
-import { Response, Request } from "express";
 import { Container } from "typedi";
-import MediaService from "./mediaService";
-import { getSearchTerm } from "../utils/utils";
+import {
+  Platform,
+  PlayFastifyRequest,
+  Quality,
+  StreamLinksFastifyRequest,
+  StreamLinksResponseType,
+} from "../types-and-schemas";
 import { ApiError } from "../utils/ApiError";
-import { Platform } from "../interfaces/Media/Platform";
-import { Quality } from "../interfaces/Media/Quality";
-import { Links } from "../interfaces/Media/File";
-import { IStreamLinks } from "../interfaces/Media/IStreamLinks";
+import { getSearchTerm } from "../utils/utils";
+import MediaService from "./mediaService";
 
 const mediaService = Container.get(MediaService);
 const logger: any = Container.get("logger");
 
-export const play = async (req: Request, res: Response) => {
-  const { id } = req.query;
-  const { range } = req.headers;
+export const play = async (request: PlayFastifyRequest, reply: FastifyReply) => {
+  const { id } = request.query;
+  const { range } = request.headers;
 
-  if (id) {
-    const response = await mediaService.streamVideo(id as string, range!);
-    res.status(206);
-    res.set(response.headers);
-    response.data.pipe(res);
+  if (!id) throw new ApiError(400, "Invalid Request");
+
+  if (range) {
+    const response = await mediaService.streamVideo(id, range);
+
+    reply.status(206);
+
+    reply.headers(response.headers);
+
+    reply.send(response.data);
   } else {
-    res.status(400);
-    throw new ApiError(400, "Invalid id or Range headers");
+    throw new ApiError(400, "Invalid range headers");
   }
 };
 
-export const streamLinks = async (req: Request, res: Response) => {
-  const searchTerm = getSearchTerm(req.body as IStreamLinks);
-  const platform = req.body.platform as Platform;
+export const getStreamLinks = async (request: StreamLinksFastifyRequest, reply: FastifyReply) => {
+  const searchTerm = getSearchTerm(request.body);
+  const { platform } = request.body;
   logger.info(`Fetching links for ${searchTerm}`);
 
-  const links: Links = {
+  const links: StreamLinksResponseType = {
     ultraHD: [],
     fullHD: [],
     hd: [],
@@ -73,10 +80,7 @@ export const streamLinks = async (req: Request, res: Response) => {
       links.hd = hd;
       links.fullHD = fullHD;
     }
-    res.set({
-      "Cache-Control": "public, max-age=3600",
-    });
-    res.json(links);
+    return links;
   } else {
     throw new ApiError(500, "SearchTerm not found");
   }

@@ -1,0 +1,19 @@
+import "reflect-metadata";
+import app from "./loaders/fastify";
+import config from "../config/default";
+
+const start = async () => {
+  try {
+    await app.listen(config.port, "0.0.0.0");
+    app.log.info(`
+    ################################################
+    🛡️  Server listening on port: ${config.port} 🛡️
+    ################################################
+    `);
+  } catch (err) {
+    app.log.error(err);
+    process.exit(1);
+  }
+};
+
+start();

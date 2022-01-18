@@ -1,17 +1,14 @@
-import pino from "pino";
+import { FastifyLoggerInstance } from "fastify";
+import { drive_v3, google } from "googleapis";
 import { Inject, Service } from "typedi";
 import config from "../../config/default";
-import { drive_v3, google } from "googleapis";
-import { SearchParams } from "../interfaces/Media/SearchParams";
-import { Platform } from "../interfaces/Media/Platform";
-import { File } from "../interfaces/Media/File";
-import { Quality } from "../interfaces/Media/Quality";
+import { File, Platform, SearchParams } from "../types-and-schemas";
 
 @Service()
 class MediaService {
   private drive: drive_v3.Drive;
 
-  constructor(@Inject("logger") private logger: pino.Logger) {
+  constructor(@Inject("logger") private logger: FastifyLoggerInstance) {
     if (config.token) {
       const { client_secret, client_id, redirect_uris } = config.appCredentials;
       const oauth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
@@ -66,7 +63,7 @@ class MediaService {
     return query;
   }
 
-  async convertIdsToLink(files: drive_v3.Schema$File[], quality: Quality): Promise<File[]> {
+  async convertIdsToLink(files: drive_v3.Schema$File[]): Promise<File[]> {
     const result = files.map((file) => {
       const encodedFileName = encodeURI(file.name as string);
       const url = `${config.base_url}/api/media/play/${encodedFileName}?id=${file.id}`;
@@ -126,7 +123,7 @@ class MediaService {
 
     let results: File[] = [];
     if (files) {
-      results = await this.convertIdsToLink(files, quality);
+      results = await this.convertIdsToLink(files);
     }
 
     return results;

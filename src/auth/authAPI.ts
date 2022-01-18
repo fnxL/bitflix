@@ -1,28 +1,49 @@
-import "reflect-metadata";
-import express from "express";
-import { LoginValidation, SignUpValidation } from "./authValidations";
-import { login, signUp, generateKey, getKeys, logout, createAdmin, token } from "./authController";
+import { FastifyInstance, FastifyPluginOptions } from "fastify";
+import {
+  keysResponse,
+  LoginRequest,
+  LoginResponse,
+  LogoutRequest,
+  Response,
+  SignUpResponse,
+  User,
+} from "../types-and-schemas";
+import { routeOptions } from "../utils/utils";
+import {
+  createAdmin,
+  generateKey,
+  getKeys,
+  getToken,
+  login,
+  logout,
+  signUp,
+} from "./authController";
 
-const router = express.Router();
+async function authRoutes(fastify: FastifyInstance, options: FastifyPluginOptions) {
+  /** Create a new account */
+  fastify.post("/signup", routeOptions(SignUpResponse, 201, User), signUp);
 
-/** Create a new account */
-router.post("/signup", SignUpValidation, signUp);
+  /* Login */
+  fastify.post("/login", routeOptions(LoginResponse, 200, LoginRequest), login);
 
-/** Login a user */
-router.post("/login", LoginValidation, login);
+  /* Logout */
+  fastify.post("/logout", routeOptions(Response, 200, LogoutRequest), logout);
 
-/** Get accessToken */
-router.post("/token", token);
+  /** Get accessToken */
+  fastify.post("/token", routeOptions(Response, 200, LogoutRequest), getToken);
 
-router.delete("/logout", logout);
+  /* Generate an Invite key */
+  fastify.get("/keys/generate", routeOptions(Response, 201), generateKey);
 
-/* Generate an Invite key */
-router.get("/keys/generate", generateKey);
+  /* Get All Keys */
+  fastify.get(
+    "/keys",
+    routeOptions(keysResponse, 200, null, fastify.auth([fastify.verifyAdmin])),
+    getKeys
+  );
 
-/* Get All Keys */
-router.get("/keys", getKeys);
+  /* Create admin user */
+  fastify.get("/create-admin", routeOptions(Response, 201), createAdmin);
+}
 
-/* Create admin user */
-router.get("/create-admin", createAdmin);
-
-export default router;
+export default authRoutes;

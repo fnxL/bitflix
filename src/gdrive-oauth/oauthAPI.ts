@@ -1,37 +1,38 @@
 import "reflect-metadata";
-import express, { Request, Response } from "express";
+import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import { Container } from "typedi";
 import GDriveService from "./oauthService";
 import { ApiError } from "../utils/ApiError";
 import { Status } from "../utils/Status";
 
-const router = express.Router();
 const gdriveService = Container.get(GDriveService);
 
-/**
- * Authorization URL for authenticating the app with a google account
- *
- */
-router.get("/url", async (req: Request, res: Response) => {
-  const url = await gdriveService.generateAuthUrl();
-  res.json({
-    status: Status.SUCCESS,
-    url,
-  });
-});
-
-/**
- * Callback endpoint after validating the app using google account
- * @param {string} code - code received after authorization
- */
-router.get("/callback", async (req: Request, res: Response) => {
-  if (req.query.code) {
-    const tokens = await gdriveService.getTokens(req.query.code as string);
-    res.json({
+async function oauthRoutes(fastify: FastifyInstance, options: FastifyPluginOptions) {
+  /**
+   * Authorization URL for authenticating the app with a google account
+   *
+   */
+  fastify.get("/url", async (request, reply) => {
+    const url = await gdriveService.generateAuthUrl();
+    reply.send({
       status: Status.SUCCESS,
-      data: tokens,
+      url,
     });
-  } else throw new ApiError(400, "No code provided for token exchange");
-});
+  });
 
-export default router;
+  /**
+   * Callback endpoint after validating the app using google account
+   * @param {string} code - code received after authorization
+   */
+  fastify.get<{ Querystring: { code: string } }>("/callback", async (request, reply) => {
+    if (request.query.code) {
+      const tokens = await gdriveService.getTokens(request.query.code);
+      reply.send({
+        status: Status.SUCCESS,
+        data: tokens,
+      });
+    } else throw new ApiError(400, "No code provided for token exchange");
+  });
+}
+
+export default oauthRoutes;

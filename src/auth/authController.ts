@@ -1,73 +1,81 @@
-import "reflect-metadata";
-import { Request, Response } from "express";
-import { Container } from "typedi";
-import { NewUser } from "../interfaces/User/NewUser";
-import { ApiError } from "../utils/ApiError";
-import AuthService from "./authService";
+import { FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
+import "reflect-metadata";
+import { Container } from "typedi";
 import config from "../../config/default";
+import {
+  LoginFastifyRequest,
+  LogoutRequestType,
+  SignUpFastifyRequest,
+  UserType,
+} from "../types-and-schemas";
+import { ApiError } from "../utils/ApiError";
 import { Status } from "../utils/Status";
+import AuthService from "./authService";
 
 const authService = Container.get(AuthService);
-const logger = Container.get("logger");
 
-export const signUp = async (req: Request, res: Response) => {
-  const user = await authService.signUp(req.body as NewUser);
-  res
+export const signUp = async (request: SignUpFastifyRequest, reply: FastifyReply) => {
+  const user = await authService.signUp(request.body);
+  reply
     .status(201)
-    .json({ user, status: Status.SUCCESS, message: "Account registered successfully!" });
+    .send({ status: Status.SUCCESS, message: "Account registered successfully!", user });
 };
 
-export const login = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+export const login = async (request: LoginFastifyRequest, reply: FastifyReply) => {
+  const { username, password } = request.body;
 
   const data = await authService.login(username, password);
-
-  res.cookie("refreshToken", data.refreshToken, {
-    sameSite: "none",
-    httpOnly: true,
-    secure: false,
-  });
-
-  res.status(200).json({
+  reply.cookie("refreshToken", data.refreshToken);
+  reply.status(200).send({
     status: Status.SUCCESS,
     message: "Logged in successfully!",
     ...data,
   });
 };
 
-export const logout = async (req: Request, res: Response) => {
-  const refreshToken = req.cookies["refreshToken"] as string;
+export const logout = async (
+  request: FastifyRequest<{ Body: LogoutRequestType }>,
+  reply: FastifyReply
+) => {
+  const refreshToken = request.cookies["refreshToken"] || request.body?.token;
   if (refreshToken) {
     await authService.deleteToken(refreshToken);
-    res.cookie("refreshToken", "", {
+
+    reply.cookie("refreshToken", "", {
       maxAge: 0,
       httpOnly: true,
     });
-    res.json({
+
+    reply.send({
       status: Status.SUCCESS,
       message: "Logged out successfully!",
     });
   } else {
-    throw new ApiError(403, "Forbidden");
+    throw new ApiError(401, "Unauthorized");
   }
 };
 
-export const token = async (req: Request, res: Response) => {
-  const refreshToken = (req.cookies["refreshToken"] as string) || (req.body.token as string);
+export const getToken = async (
+  request: FastifyRequest<{ Body: LogoutRequestType }>,
+  reply: FastifyReply
+) => {
+  const refreshToken = request.cookies["refreshToken"] || request.body?.token;
+
   if (refreshToken) {
     const tokenExists = await authService.checkRefreshToken(refreshToken);
     if (tokenExists) {
       jwt.verify(refreshToken, config.secret.refresh_token_secret!, (err, decoded) => {
         if (err) throw new ApiError(401, "Session Expired");
-        const user = decoded as NewUser;
+        const user = decoded as UserType;
         const accessToken = authService.generateAccessToken({
           firstName: user.firstName,
           lastName: user.lastName,
           username: user.username,
           role: user.role,
-        } as NewUser);
-        res.json({
+        } as UserType);
+
+        reply.status(200).send({
           status: Status.SUCCESS,
           accessToken,
         });
@@ -80,27 +88,28 @@ export const token = async (req: Request, res: Response) => {
   }
 };
 
-export const generateKey = async (req: Request, res: Response) => {
+export const generateKey = async (request: FastifyRequest, reply: FastifyReply) => {
   const key = await authService.generateKey();
-  res.status(201).json({
+
+  reply.status(201).send({
     status: Status.SUCCESS,
-    message: "Invite key generated successfully!",
+    message: "Invite key generated successfully",
     ...(key as {}),
   });
 };
 
-export const getKeys = async (req: Request, res: Response) => {
+export const getKeys = async (request: FastifyRequest, reply: FastifyReply) => {
   const keys = await authService.getInviteKeys();
-  res.status(200).json({
+  reply.status(200).send({
     status: Status.SUCCESS,
     keys,
   });
 };
 
-export const createAdmin = async (req: Request, res: Response) => {
+export const createAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
   const check = await authService.createAdmin();
   if (check) {
-    return res.status(201).json({
+    return reply.status(201).send({
       status: Status.SUCCESS,
       message: "Admin user created successfully",
     });

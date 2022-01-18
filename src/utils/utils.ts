@@ -5,8 +5,8 @@
 // 5. WEBRip
 // 6. HDRip
 
-import { IStreamLinks } from "../interfaces/Media/IStreamLinks";
-import { MediaType } from "../interfaces/Media/MediaType";
+import { StreamLinksRequestType } from "../types-and-schemas";
+import { MediaType } from "../types-and-schemas";
 
 const sortOrder = [
   ["bluray", "10bit", "hdr"],
@@ -175,7 +175,7 @@ export const cleanFileName = (str: string) => {
   return trailing;
 };
 
-export const getSearchTerm = (data: IStreamLinks) => {
+export const getSearchTerm = (data: StreamLinksRequestType) => {
   const { title, year, seasonNumber, episodeNumber } = data;
   const cleanedTitle = cleanFileName(title);
   const type = data.type as MediaType;
@@ -185,6 +185,33 @@ export const getSearchTerm = (data: IStreamLinks) => {
     }`;
   return `${cleanedTitle} ${year}`;
 };
+
+export function routeOptions(
+  responseBody: any,
+  statusCode: number,
+  requestBody?: any,
+  preHandler?: any
+) {
+  if (!requestBody) {
+    return {
+      preHandler: preHandler,
+      schema: {
+        response: {
+          [statusCode]: responseBody,
+        },
+      },
+    };
+  }
+  return {
+    preHandler: preHandler,
+    schema: {
+      body: requestBody,
+      response: {
+        [statusCode]: responseBody,
+      },
+    },
+  };
+}
 
 // export function formatBytes(bytes, decimals = 2) {
 //   if (!bytes) return undefined;
