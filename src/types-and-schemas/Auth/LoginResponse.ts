@@ -6,11 +6,9 @@ export const LoginResponse = Type.Object({
   message: Type.String(),
   userData: Type.Object({
     id: Type.String(),
-    firstName: Type.String(),
-    lastName: Type.String(),
     username: Type.String(),
-    email: Type.String({ format: "email" }),
     role: Type.Enum(Role),
+    createdAt: Type.Optional(Type.Any()),
   }),
   accessToken: Type.String(),
   refreshToken: Type.String(),

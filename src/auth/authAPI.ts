@@ -8,8 +8,10 @@ import {
   SignUpResponse,
   User,
 } from "../types-and-schemas";
+import { TokenResponse } from "../types-and-schemas/Auth/TokenResponse";
 import { routeOptions } from "../utils/utils";
 import {
+  checkSession,
   createAdmin,
   generateKey,
   getKeys,
@@ -30,7 +32,9 @@ async function authRoutes(fastify: FastifyInstance, options: FastifyPluginOption
   fastify.post("/logout", routeOptions(Response, 200, LogoutRequest), logout);
 
   /** Get accessToken */
-  fastify.post("/token", routeOptions(Response, 200, LogoutRequest), getToken);
+  fastify.post("/token", routeOptions(TokenResponse, 200, LogoutRequest), getToken);
+
+  fastify.post("/check-session", routeOptions(Response, 200, LogoutRequest), checkSession);
 
   /* Generate an Invite key */
   fastify.get("/keys/generate", routeOptions(Response, 201), generateKey);

@@ -1,20 +1,30 @@
-import { FastifyReply, FastifyRequest, DoneFuncWithErrOrRes } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
 import config from "../../config/default";
-import { UserType } from "../types-and-schemas";
+import { StrippedUserData, UserType } from "../types-and-schemas";
 import { ApiError } from "./ApiError";
+import { Container } from "typedi";
+import AuthService from "../auth/authService";
+
+const authService = Container.get(AuthService);
 
 const verifyUser = async (request: FastifyRequest, reply: FastifyReply) => {
   const authorization = request.headers.authorization;
-  if (authorization) {
-    const accessToken = authorization.split(" ")[1];
-    jwt.verify(accessToken, config.secret.access_token_secret!, (err, user) => {
-      if (err) throw new ApiError(401, "Session Expired");
-      request.user = user as UserType;
-    });
-  } else {
-    throw new ApiError(401, "Unauthorized");
-  }
+  const refreshToken = request.cookies["refreshToken"] || request.headers["x-refresh-token"];
+
+  if (!refreshToken) throw new ApiError(401, "Session not found");
+
+  if (!authorization) throw new ApiError(401, "Unauthorized");
+
+  const tokenExists = await authService.checkRefreshToken(refreshToken as string);
+
+  if (!tokenExists) throw new ApiError(401, "Session Expired");
+
+  const accessToken = authorization.split(" ")[1];
+  jwt.verify(accessToken, config.secret.access_token_secret!, (err, user) => {
+    if (err) throw new ApiError(401, "Session Expired");
+    request.user = user as StrippedUserData;
+  });
 };
 
 export default verifyUser;

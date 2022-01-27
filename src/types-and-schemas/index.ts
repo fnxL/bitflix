@@ -18,8 +18,10 @@ import {
 import { StreamLinksResponse, StreamLinksResponseType } from "./Media/StreamLinksResponse";
 import { MediaType } from "./Media/MediaTypeEnum";
 import { subtitlesRequestType } from "./Subtitles/subtitlesRequest";
+import { StrippedUserData } from "./Auth/StrippedUserData";
 
 export {
+  StrippedUserData,
   subtitlesRequestType,
   keysResponse,
   LoginRequest,

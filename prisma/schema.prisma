@@ -11,25 +11,29 @@ generator client {
 }
 
 model User {
-  @@map(name: "users")
-  
-  id String @id @default(uuid())
-  firstName String @db.VarChar(255)
-  lastName String @db.VarChar(255)
-  username String @db.VarChar(255) @unique
-  password String @db.VarChar(255)
-  email String @db.VarChar(255) @unique @default("")
-  role Role @default(USER)
-  
+  id        String    @id @default(uuid())
+  firstName String    @db.VarChar(255)
+  lastName  String    @db.VarChar(255)
+  username  String    @unique @db.VarChar(255)
+  password  String    @db.VarChar(255)
+  email     String    @unique @default("") @db.VarChar(255)
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  session   Session[]
 }
 
-model RefreshToken {
-  token String @unique
+model Session {
+  refreshToken String  @unique
+  location     String?
+  device       String?
+  user         User    @relation(fields: [user_id], references: [id])
+  user_id      String
 }
+
 
 model Key {
+  inviteKey String @unique @default(uuid())
   @@map(name: "keys")
-  inviteKey String @default(uuid()) @unique
 }
 
 enum Role {
