@@ -1,4 +1,5 @@
-import { Platform, Quality } from "..";
+import { Platform } from "./PlatformEnum";
+import { Quality } from "./QualityEnum";
 
 export interface SearchParams {
   fileName: string;

@@ -1,7 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
 import { Inject, Service } from "typedi";
-import config from "../../config/default";
+import config from "@config";
 import { FastifyLoggerInstance } from "fastify";
 
 @Service()

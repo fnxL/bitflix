@@ -1,7 +1,6 @@
 import { Type, Static } from "@sinclair/typebox";
-import { FastifyRequest } from "fastify";
 
-export const subtitlesRequest = Type.Object({
+export const SubtitlesSchema = Type.Object({
   sublanguageid: Type.String(),
   filename: Type.String(),
   filesize: Type.String(),
@@ -11,4 +10,4 @@ export const subtitlesRequest = Type.Object({
   imdbid: Type.String(),
 });
 
-export type subtitlesRequestType = Static<typeof subtitlesRequest>;
+export type SubtitlesType = Static<typeof SubtitlesSchema>;

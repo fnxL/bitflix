@@ -1,10 +1,15 @@
 import { Role } from "@prisma/client";
 import { Type, Static } from "@sinclair/typebox";
 
-export const LoginResponse = Type.Object({
+export const LoginSchema = Type.Object({
+  username: Type.String({ minLength: 3 }),
+  password: Type.String({ minLength: 4 }),
+});
+
+export const LoginResponseSchema = Type.Object({
   status: Type.String(),
   message: Type.String(),
-  userData: Type.Object({
+  user: Type.Object({
     id: Type.String(),
     username: Type.String(),
     role: Type.Enum(Role),
@@ -13,3 +18,6 @@ export const LoginResponse = Type.Object({
   accessToken: Type.String(),
   refreshToken: Type.String(),
 });
+
+export type LoginType = Static<typeof LoginSchema>;
+export type LoginResponseType = Static<typeof LoginResponseSchema>;

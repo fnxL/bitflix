@@ -1,10 +1,10 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
-import config from "../../config/default";
-import { StrippedUserData, UserType } from "../types-and-schemas";
+import config from "@config";
 import { ApiError } from "./ApiError";
 import { Container } from "typedi";
 import AuthService from "../auth/authService";
+import { UserPayload } from "src/auth/schema";
 
 const authService = Container.get(AuthService);
 
@@ -23,7 +23,7 @@ const verifyUser = async (request: FastifyRequest, reply: FastifyReply) => {
   const accessToken = authorization.split(" ")[1];
   jwt.verify(accessToken, config.secret.access_token_secret!, (err, user) => {
     if (err) throw new ApiError(401, "Session Expired");
-    request.user = user as StrippedUserData;
+    request.user = user as UserPayload;
   });
 };
 

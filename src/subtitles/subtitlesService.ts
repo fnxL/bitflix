@@ -3,7 +3,7 @@ import { Inject, Service } from "typedi";
 import config from "../../config/default";
 import OS from "opensubtitles-api";
 import { FastifyLoggerInstance } from "fastify";
-import { subtitlesRequestType } from "../types-and-schemas";
+import { SubtitlesType } from "./schema";
 
 @Service()
 class SubtitlesService {
@@ -18,7 +18,7 @@ class SubtitlesService {
     this.logger.info("Subtitles Service initialized...");
   }
 
-  async getSubtitles(data: subtitlesRequestType) {
+  async getSubtitles(data: SubtitlesType) {
     this.logger.info("Fetching subs for " + data.filename);
     const subs = await this.openSubtitles.search(data);
     return subs;

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import app from "./loaders/fastify";
-import config from "../config/default";
+import config from "@config";
 
 const start = async () => {
   try {

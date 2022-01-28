@@ -5,8 +5,8 @@
 // 5. WEBRip
 // 6. HDRip
 
-import { StreamLinksRequestType } from "../types-and-schemas";
-import { MediaType } from "../types-and-schemas";
+import bcrypt from "bcrypt";
+import { MediaType, StreamLinksType } from "src/media/schema";
 
 const sortOrder = [
   ["bluray", "10bit", "hdr"],
@@ -175,7 +175,7 @@ export const cleanFileName = (str: string) => {
   return trailing;
 };
 
-export const getSearchTerm = (data: StreamLinksRequestType) => {
+export const getSearchTerm = (data: StreamLinksType) => {
   const { title, year, seasonNumber, episodeNumber } = data;
   const cleanedTitle = cleanFileName(title);
   const type = data.type as MediaType;
@@ -185,6 +185,11 @@ export const getSearchTerm = (data: StreamLinksRequestType) => {
     }`;
   return `${cleanedTitle} ${year}`;
 };
+
+export async function hash(password: string, saltRounds: number = 10): Promise<string> {
+  const salt = await bcrypt.genSalt(saltRounds);
+  return await bcrypt.hash(password, salt);
+}
 
 export function routeOptions(
   responseBody: any,

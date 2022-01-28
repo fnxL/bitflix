@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import prismaClient from "./database";
 import { Container } from "typedi";
 import { FastifyLoggerInstance } from "fastify";

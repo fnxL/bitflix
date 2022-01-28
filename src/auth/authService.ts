@@ -3,9 +3,10 @@ import bcrypt from "bcrypt";
 import { FastifyLoggerInstance } from "fastify";
 import jwt from "jsonwebtoken";
 import { Inject, Service } from "typedi";
-import config from "../../config/default";
-import { StrippedUserData, UserType } from "../types-and-schemas";
+import config from "@config";
+import { UserType, SignUpType, UserPayload } from "./schema/SignUp";
 import { ApiError } from "../utils/ApiError";
+import { hash } from "src/utils/utils";
 
 @Service()
 class AuthService {
@@ -16,16 +17,12 @@ class AuthService {
     logger.info("AuthService Initialized...");
   }
 
-  /* 
-    Get list of invite keys
-  */
   async getInviteKeys(): Promise<Prisma.Key[]> {
     this.logger.info("Getting all invite keys...");
     const keys = await this.prisma.key.findMany();
     return keys;
   }
 
-  /* Generate an invite key */
   async generateKey() {
     this.logger.info("Generating one time invite key...");
     const key = await this.prisma.key.create({
@@ -34,8 +31,7 @@ class AuthService {
     return key;
   }
 
-  /* Sign Up a user */
-  async signUp({ inviteKey, password, ...rest }: UserType): Promise<UserType> {
+  async signUp({ inviteKey, password, ...rest }: UserType): Promise<SignUpType> {
     this.logger.info("Checking if inviteKey is valid");
     const getInviteKey = await this.prisma.key.findUnique({
       where: {
@@ -51,10 +47,9 @@ class AuthService {
     if (checkUser) throw new ApiError(400, "User with this username already exists");
 
     this.logger.info("Hashing Password");
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password!, salt);
+    const hashedPassword = await hash(password);
 
-    this.logger.info("Creating DB record");
+    this.logger.info("Creating DB record...");
 
     const user = await this.prisma.user.create({
       select: {
@@ -62,8 +57,6 @@ class AuthService {
         lastName: true,
         username: true,
         email: true,
-        role: true,
-        createdAt: true,
       },
       data: {
         ...rest,
@@ -87,8 +80,6 @@ class AuthService {
 
     return { ...user };
   }
-
-  /* Generate Admin User if not exists */
 
   async createAdmin() {
     const checkAdmin = await this.getUser("admin");
@@ -119,19 +110,20 @@ class AuthService {
 
   async login(username: string, password: string) {
     this.logger.info("Checking if user exists");
-    const user = await this.getUser(username);
-    if (!user) throw new ApiError(401, "Invalid credentials, please try again!");
+    const checkUser = await this.getUser(username);
+    if (!checkUser) throw new ApiError(401, "Invalid credentials, please try again!");
 
     this.logger.info("Checking Password");
-    const checkPasswordMatch = await bcrypt.compare(password, user.password);
+    const checkPasswordMatch = await bcrypt.compare(password, checkUser.password);
 
     if (checkPasswordMatch) {
       this.logger.info("Password is valid!");
       this.logger.info("Generating JWT");
-      const { password: userpass, ...strippedUserData } = user;
-      const accessToken = this.generateAccessToken(strippedUserData);
-      const refreshToken = this.generateRefreshToken(strippedUserData);
-      // store refreshToken into the database.
+      const { password: userpass, ...user } = checkUser;
+
+      const accessToken = this.generateAccessToken(user);
+      const refreshToken = this.generateRefreshToken(user);
+
       await this.prisma.session.create({
         data: {
           refreshToken,
@@ -139,7 +131,7 @@ class AuthService {
         },
       });
 
-      return { userData: strippedUserData, accessToken, refreshToken };
+      return { user, accessToken, refreshToken };
     }
     throw new ApiError(401, "Invalid credentials, please try again!");
   }
@@ -161,11 +153,11 @@ class AuthService {
     });
   }
 
-  generateRefreshToken(user: StrippedUserData) {
+  generateRefreshToken(user: UserPayload) {
     return jwt.sign(user, config.secret.refresh_token_secret!);
   }
 
-  generateAccessToken(user: StrippedUserData) {
+  generateAccessToken(user: UserPayload) {
     this.logger.info(`Signing JWT for user: ${user.username}`);
     return jwt.sign(user, config.secret.access_token_secret!, {
       expiresIn: config.secret.expires,
