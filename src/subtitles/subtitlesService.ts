@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { Inject, Service } from "typedi";
-import config from "../../config/default";
+import config from "@config";
 import OS from "opensubtitles-api";
 import { FastifyLoggerInstance } from "fastify";
 import { SubtitlesType } from "./schema";

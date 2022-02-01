@@ -34,10 +34,10 @@ model Session {
 model Playback {
   id String @unique @default(uuid())
   progress Float 
-  tmdbId Int
+  tmdbId Int 
   movie Movie?
   user User @relation(fields: [userId], references: [id])
-  userId String
+  userId String 
 }
 
 model Movie {

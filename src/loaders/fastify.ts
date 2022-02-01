@@ -29,6 +29,7 @@ import verifyAdmin from "../utils/verifyAdmin";
 app.register(fastifyCookie, {
   secret: "secret",
   parseOptions: {
+    path: "/",
     httpOnly: true,
     secure: false,
     sameSite: "none",
@@ -58,6 +59,10 @@ app.register(fastifySwagger, {
       {
         name: "Media",
         description: "Media related endpoints",
+      },
+      {
+        name: "Sync",
+        description: "Media sync related endpoints",
       },
       {
         name: "Subtitles",

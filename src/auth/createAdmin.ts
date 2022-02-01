@@ -1,4 +1,4 @@
-import { ResponseSchema, ResponseType, TokenSchema } from "@schema";
+import { ResponseSchema, ResponseType } from "@schema";
 import { ApiError } from "@util/ApiError";
 import { FastifyInstance, RouteShorthandOptions } from "fastify";
 import { Status } from "src/utils/Status";
@@ -10,7 +10,6 @@ const authService = Container.get(AuthService);
 const options: RouteShorthandOptions = {
   schema: {
     hide: true,
-    body: TokenSchema,
     response: {
       200: ResponseSchema,
     },
@@ -18,7 +17,7 @@ const options: RouteShorthandOptions = {
 };
 
 export default async function (fastify: FastifyInstance): Promise<void> {
-  fastify.post<{ Reply: ResponseType }>("/create-admin", options, async (req, res) => {
+  fastify.get<{ Reply: ResponseType }>("/create-admin", options, async (req, res) => {
     const check = await authService.createAdmin();
     if (check) {
       return res.status(201).send({
