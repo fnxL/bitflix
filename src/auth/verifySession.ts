@@ -1,9 +1,10 @@
 import { FastifyInstance, RouteShorthandOptions } from "fastify";
 import AuthService from "./authService";
 import { Container } from "typedi";
-import { Status } from "src/utils/Status";
-import { TokenType, TokenSchema, ResponseSchema, ResponseType } from "@schema";
+import { Status } from "@util/Status";
+import { ResponseSchema, ResponseType } from "@schema";
 import { ApiError } from "@util/ApiError";
+import { TokenSchema, TokenType } from "./schema";
 
 const authService = Container.get(AuthService);
 

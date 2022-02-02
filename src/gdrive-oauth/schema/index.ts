@@ -1,4 +1,4 @@
-import { Static, Type, TSchema } from "@sinclair/typebox";
+import { Static, Type } from "@sinclair/typebox";
 
 export const URLResponseSchema = Type.Object({
   status: Type.Optional(Type.String()),

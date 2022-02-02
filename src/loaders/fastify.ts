@@ -23,8 +23,8 @@ const app = Fastify({
 dependencyInjectors(app.log);
 
 import routes from "../routes";
-import verifyUser from "../utils/verifyUser";
-import verifyAdmin from "../utils/verifyAdmin";
+import verifyUser from "@util/verifyUser";
+import verifyAdmin from "@util/verifyAdmin";
 
 app.register(fastifyCookie, {
   secret: "secret",

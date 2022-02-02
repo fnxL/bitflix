@@ -1,6 +1,6 @@
 import { ResponseSchema } from "@schema";
 import { FastifyInstance, RouteShorthandOptions } from "fastify";
-import { Status } from "src/utils/Status";
+import { Status } from "@util/Status";
 import { Container } from "typedi";
 import AuthService from "./authService";
 import { KeySchema } from "./schema";

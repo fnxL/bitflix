@@ -4,9 +4,9 @@ import { FastifyLoggerInstance } from "fastify";
 import jwt from "jsonwebtoken";
 import { Inject, Service } from "typedi";
 import config from "@config";
-import { UserType, SignUpType, UserPayload } from "./schema/SignUp";
+import { UserType, SignUpType, UserPayload } from "./schema/";
 import { ApiError } from "../utils/ApiError";
-import { hash } from "src/utils/utils";
+import { hash } from "@util/utils";
 
 @Service()
 class AuthService {

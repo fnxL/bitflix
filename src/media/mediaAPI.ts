@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyLoggerInstance, RouteShorthandOptions } from "fastify";
 import {
+  MediaType,
   Platform,
   PlayParams,
   PlayParamsType,
@@ -39,7 +40,7 @@ export default async function (fastify: FastifyInstance) {
     async (req, res) => {
       const searchTerm = getSearchTerm(req.body);
 
-      const { platform } = req.body;
+      const { platform, type } = req.body;
 
       logger.info(`Fetching links for ${searchTerm}`);
 
@@ -56,11 +57,13 @@ export default async function (fastify: FastifyInstance) {
             fileName: searchTerm,
             quality: Quality.ULTRA_HD,
             platform: Platform.ANDROID,
+            type,
           }),
           mediaService.getStreamLinks({
             fileName: searchTerm,
             quality: Quality.FULL_HD,
             platform: Platform.ANDROID,
+            type,
           }),
         ]);
 
@@ -73,11 +76,13 @@ export default async function (fastify: FastifyInstance) {
             fileName: searchTerm,
             quality: Quality.FULL_HD,
             platform,
+            type,
           }),
           mediaService.getStreamLinks({
             fileName: searchTerm,
             quality: Quality.HD,
             platform,
+            type,
           }),
         ]);
         links.hd = hd;

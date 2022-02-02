@@ -1,8 +1,10 @@
+import { ApiError } from "@util/ApiError";
+import { filterAndSort, formatBytes } from "@util/utils";
 import { FastifyLoggerInstance } from "fastify";
 import { drive_v3, google } from "googleapis";
 import { Inject, Service } from "typedi";
 import config from "../../config/default";
-import { File, Platform, SearchParams } from "./schema";
+import { File, Order, Platform, Rules, RuleValue, SearchParams } from "./schema";
 
 @Service()
 class MediaService {
@@ -24,9 +26,6 @@ class MediaService {
     }
   }
 
-  /**
-   * Create query string for searching google drive.
-   */
   async createQuery(rules: Rules) {
     let query = "";
 
@@ -49,13 +48,14 @@ class MediaService {
     return query;
   }
 
-  async convertIdsToLink(files: drive_v3.Schema$File[]): Promise<File[]> {
+  async convertIdsToLink(files: drive_v3.Schema$File[]) {
     const result = files.map((file) => {
       const encodedFileName = encodeURI(file.name as string);
       const url = `${config.base_url}/api/media/play/${encodedFileName}?id=${file.id}`;
+      const formattedSize = formatBytes(parseInt(file.size!, 10));
       return {
         name: file.name,
-        size: file.size,
+        size: formattedSize,
         url,
       };
     });
@@ -70,7 +70,7 @@ class MediaService {
    *
    */
   async getStreamLinks(search: SearchParams) {
-    const { isFireFox, fileName, platform, pageSize, quality } = search;
+    const { isFireFox, fileName, platform, pageSize, quality, type } = search;
 
     const fileNameQuality = fileName.concat(` ${quality}`);
 
@@ -108,8 +108,10 @@ class MediaService {
     });
 
     let results: File[] = [];
-    if (files) {
-      results = await this.convertIdsToLink(files);
+    if (!files) throw new ApiError(404, "No files found");
+    if (platform === Platform.ANDROID) {
+      const res = filterAndSort(files, Order.ASCENDING, type, quality);
+      results = await this.convertIdsToLink(res);
     }
 
     return results;

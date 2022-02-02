@@ -2,7 +2,7 @@ import config from "@config";
 import { ApiError } from "@util/ApiError";
 import { FastifyInstance, RouteShorthandOptions } from "fastify";
 import jwt from "jsonwebtoken";
-import { Status } from "src/utils/Status";
+import { Status } from "@util/Status";
 import { Container } from "typedi";
 import AuthService from "./authService";
 import {
