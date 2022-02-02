@@ -10,6 +10,9 @@
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/server.ts",
     "build": "tsc -p ."
   },
+  "engines": {
+    "node": "16.13.1"
+  },
   "keywords": [],
   "_moduleAliases": {
     "@config": "build/config/default.js",
