@@ -3,9 +3,10 @@ import bcrypt from "bcrypt";
 import { FastifyLoggerInstance } from "fastify";
 import jwt from "jsonwebtoken";
 import { Inject, Service } from "typedi";
-import config from "../../config/default";
-import { UserType } from "../types-and-schemas";
+import config from "@config";
+import { UserType, SignUpType, UserPayload } from "./schema/";
 import { ApiError } from "../utils/ApiError";
+import { hash } from "@util/utils";
 
 @Service()
 class AuthService {
@@ -16,16 +17,12 @@ class AuthService {
     logger.info("AuthService Initialized...");
   }
 
-  /* 
-    Get list of invite keys
-  */
   async getInviteKeys(): Promise<Prisma.Key[]> {
     this.logger.info("Getting all invite keys...");
     const keys = await this.prisma.key.findMany();
     return keys;
   }
 
-  /* Generate an invite key */
   async generateKey() {
     this.logger.info("Generating one time invite key...");
     const key = await this.prisma.key.create({
@@ -34,8 +31,7 @@ class AuthService {
     return key;
   }
 
-  /* Sign Up a user */
-  async signUp({ inviteKey, password, ...rest }: UserType): Promise<UserType> {
+  async signUp({ inviteKey, password, ...rest }: UserType): Promise<SignUpType> {
     this.logger.info("Checking if inviteKey is valid");
     const getInviteKey = await this.prisma.key.findUnique({
       where: {
@@ -51,12 +47,17 @@ class AuthService {
     if (checkUser) throw new ApiError(400, "User with this username already exists");
 
     this.logger.info("Hashing Password");
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password!, salt);
+    const hashedPassword = await hash(password);
 
-    this.logger.info("Creating DB record");
+    this.logger.info("Creating DB record...");
 
     const user = await this.prisma.user.create({
+      select: {
+        firstName: true,
+        lastName: true,
+        username: true,
+        email: true,
+      },
       data: {
         ...rest,
         password: hashedPassword,
@@ -77,11 +78,8 @@ class AuthService {
       },
     });
 
-    const { password: p1, ...userObject } = user;
-    return { ...userObject };
+    return { ...user };
   }
-
-  /* Generate Admin User if not exists */
 
   async createAdmin() {
     const checkAdmin = await this.getUser("admin");
@@ -112,54 +110,56 @@ class AuthService {
 
   async login(username: string, password: string) {
     this.logger.info("Checking if user exists");
-    const user = await this.getUser(username);
-    if (!user) throw new ApiError(401, "Invalid Credentials");
+    const checkUser = await this.getUser(username);
+    if (!checkUser) throw new ApiError(401, "Invalid credentials, please try again!");
 
     this.logger.info("Checking Password");
-    const isMatch = await bcrypt.compare(password, user.password);
+    const checkPasswordMatch = await bcrypt.compare(password, checkUser.password);
 
-    if (isMatch) {
+    if (checkPasswordMatch) {
       this.logger.info("Password is valid!");
       this.logger.info("Generating JWT");
-      const { password: userpass, ...userData } = user;
-      const accessToken = this.generateAccessToken(userData);
-      const refreshToken = this.generateRefreshToken(userData);
-      // store refreshToken into the database.
-      await this.prisma.refreshToken.create({
+      const { password: userpass, ...user } = checkUser;
+
+      const accessToken = this.generateAccessToken(user);
+      const refreshToken = this.generateRefreshToken(user);
+
+      await this.prisma.session.create({
         data: {
-          token: refreshToken,
+          refreshToken,
+          user_id: user.id,
         },
       });
 
-      return { userData, accessToken, refreshToken };
+      return { user, accessToken, refreshToken };
     }
-    throw new ApiError(401, "Invalid Credentials");
+    throw new ApiError(401, "Invalid credentials, please try again!");
   }
 
   async checkRefreshToken(token: string) {
-    const refreshToken = await this.prisma.refreshToken.findUnique({
+    const refreshToken = await this.prisma.session.findUnique({
       where: {
-        token,
+        refreshToken: token,
       },
     });
     return refreshToken ? true : false;
   }
 
   async deleteToken(token: string) {
-    await this.prisma.refreshToken.delete({
+    await this.prisma.session.delete({
       where: {
-        token,
+        refreshToken: token,
       },
     });
   }
 
-  generateRefreshToken(userData: UserType) {
-    return jwt.sign(userData, config.secret.refresh_token_secret!);
+  generateRefreshToken(user: UserPayload) {
+    return jwt.sign(user, config.secret.refresh_token_secret!);
   }
 
-  generateAccessToken(userData: UserType) {
-    this.logger.info(`Signing JWT for user: ${userData.username}`);
-    return jwt.sign(userData, config.secret.access_token_secret!, {
+  generateAccessToken(user: UserPayload) {
+    this.logger.info(`Signing JWT for user: ${user.username}`);
+    return jwt.sign(user, config.secret.access_token_secret!, {
       expiresIn: config.secret.expires,
     });
   }
@@ -180,6 +180,13 @@ class AuthService {
   /* Get A User */
   async getUser(username: string) {
     const user = await this.prisma.user.findUnique({
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        role: true,
+        createdAt: true,
+      },
       where: {
         username,
       },

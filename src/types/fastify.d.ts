@@ -1,8 +1,9 @@
-import { UserType } from "../types-and-schemas";
+import { RequestHeadersDefault } from "fastify";
+import { UserPayload } from "src/auth/schema";
 
 declare module "fastify" {
   interface FastifyRequest {
-    user: UserType;
+    user: UserPayload;
   }
   interface FastifyInstance {
     verifyUser: () => void;

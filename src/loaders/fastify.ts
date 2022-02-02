@@ -1,9 +1,10 @@
-import dependencyInjectors from "./dependencyInjectors";
+import dependencyInjectors from "./dependencies";
 import Fastify from "fastify";
-import config from "../../config/default";
+import config from "@config";
 import fastifyCookie from "fastify-cookie";
 import fastifyCors from "fastify-cors";
 import fastifyAuth from "fastify-auth";
+import fastifySwagger from "fastify-swagger";
 
 const app = Fastify({
   logger:
@@ -18,19 +19,17 @@ const app = Fastify({
         }
       : false,
 });
-
+// Pass logger instance of fastify App
 dependencyInjectors(app.log);
 
-import authRoutes from "../auth/authAPI";
-import mediaRoutes from "../media/mediaAPI";
-import oauthRoutes from "../gdrive-oauth/oauthAPI";
-import subtitlesRoutes from "../subtitles/subtitlesAPI";
-import verifyUser from "../utils/verifyUser";
-import verifyAdmin from "../utils/verifyAdmin";
+import routes from "../routes";
+import verifyUser from "@util/verifyUser";
+import verifyAdmin from "@util/verifyAdmin";
 
 app.register(fastifyCookie, {
   secret: "secret",
   parseOptions: {
+    path: "/",
     httpOnly: true,
     secure: false,
     sameSite: "none",
@@ -42,6 +41,40 @@ app.register(fastifyCors, {
   origin: ["*"],
 });
 
+app.register(fastifySwagger, {
+  routePrefix: "/docs",
+  exposeRoute: true,
+  swagger: {
+    info: {
+      title: "bitflix-api",
+      version: "1.0.0",
+    },
+    consumes: ["application/json"],
+    produces: ["application/json"],
+    tags: [
+      {
+        name: "Authentication",
+        description: "Auth related end-points",
+      },
+      {
+        name: "Media",
+        description: "Media related endpoints",
+      },
+      {
+        name: "Sync",
+        description: "Media sync related endpoints",
+      },
+      {
+        name: "Subtitles",
+        description: "Subtitles related endpoints",
+      },
+      {
+        name: "gdrive-oauth",
+      },
+    ],
+  },
+});
+
 app.decorate("verifyUser", verifyUser).decorate("verifyAdmin", verifyAdmin).register(fastifyAuth);
 
 // app.setErrorHandler(function (error, request, reply) {
@@ -50,10 +83,7 @@ app.decorate("verifyUser", verifyUser).decorate("verifyAdmin", verifyAdmin).regi
 //   reply.status(statusCode).send({ status: Status.ERROR, message: error.message, statusCode });
 // });
 
-app.register(authRoutes, { prefix: "api/auth" });
-app.register(mediaRoutes, { prefix: "api/media" });
-app.register(oauthRoutes, { prefix: "api/drive/oauth" });
-app.register(subtitlesRoutes, { prefix: "api/subtitles" });
+app.register(routes, { prefix: "api" });
 
 app.get("/", async (request, reply) => {
   return { hello: "world" };
