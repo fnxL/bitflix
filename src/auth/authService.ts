@@ -17,20 +17,6 @@ class AuthService {
     logger.info("AuthService Initialized...");
   }
 
-  async getInviteKeys(): Promise<Prisma.Key[]> {
-    this.logger.info("Getting all invite keys...");
-    const keys = await this.prisma.key.findMany();
-    return keys;
-  }
-
-  async generateKey() {
-    this.logger.info("Generating one time invite key...");
-    const key = await this.prisma.key.create({
-      data: {},
-    });
-    return key;
-  }
-
   async signUp({ inviteKey, password, ...rest }: UserType): Promise<SignUpType> {
     this.logger.info("Checking if inviteKey is valid");
     const getInviteKey = await this.prisma.key.findUnique({
@@ -79,33 +65,6 @@ class AuthService {
     });
 
     return { ...user };
-  }
-
-  async createAdmin() {
-    const checkAdmin = await this.getUser("admin");
-    if (checkAdmin) {
-      this.logger.info("Admin Already Exists");
-      return false;
-    }
-
-    this.logger.info("Hashing Password");
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(config.admin.password!, salt);
-
-    const admin = {
-      firstName: "Site",
-      lastName: "Admin",
-      email: "admin@admin.com",
-      username: config.admin.username!,
-      password: hashedPassword,
-      role: Role.ADMIN,
-    };
-
-    await this.prisma.user.create({
-      data: admin,
-    });
-    this.logger.info("Admin User created successfully");
-    return true;
   }
 
   async login(username: string, password: string) {

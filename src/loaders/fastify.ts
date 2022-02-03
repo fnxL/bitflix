@@ -25,6 +25,8 @@ dependencyInjectors(app.log);
 import routes from "../routes";
 import verifyUser from "@util/verifyUser";
 import verifyAdmin from "@util/verifyAdmin";
+import Container from "typedi";
+import { PrismaClient } from "@prisma/client";
 
 app.register(fastifyCookie, {
   secret: "secret",
@@ -52,6 +54,10 @@ app.register(fastifySwagger, {
     consumes: ["application/json"],
     produces: ["application/json"],
     tags: [
+      {
+        name: "Admin",
+        description: "Admin related endpoints",
+      },
       {
         name: "Authentication",
         description: "Auth related end-points",
@@ -84,6 +90,16 @@ app.decorate("verifyUser", verifyUser).decorate("verifyAdmin", verifyAdmin).regi
 // });
 
 app.register(routes, { prefix: "api" });
+
+app.get("/app/updates", async (req, res) => {
+  const prisma: PrismaClient = Container.get("prisma");
+  const result = await prisma.appConfig.findUnique({
+    where: {
+      appName: "com.fnxl.bitflix",
+    },
+  });
+  return result;
+});
 
 app.get("/", async (request, reply) => {
   return { hello: "world" };

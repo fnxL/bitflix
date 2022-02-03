@@ -59,16 +59,6 @@ export type UserPayload = {
   createdAt?: Date;
 };
 
-export const KeySchema = Type.Object({
-  status: Type.String(),
-  keys: Type.Array(
-    Type.Object({
-      inviteKey: Type.String(),
-    })
-  ),
-});
-export type KeyResponseType = Static<typeof KeySchema>;
-
 export const TokenSchema = Nullable(
   Type.Object({
     token: Type.Optional(Type.String()),

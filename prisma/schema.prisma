@@ -23,6 +23,14 @@ model User {
   watching Playback[]
 }
 
+model AppConfig {
+  appName String @unique
+  latestVersion String
+  latestVersionCode Int? 
+  url String
+  releaseNotes String?
+}
+
 model Session {
   refreshToken String  @unique
   location     String?
