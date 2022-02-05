@@ -4,7 +4,6 @@ import { FastifyLoggerInstance } from "fastify";
 import { Inject, Service } from "typedi";
 import config from "@config";
 import { ApiError } from "../utils/ApiError";
-import { AppConfigType } from "./schema";
 
 @Service()
 class AdminService {
@@ -13,33 +12,6 @@ class AdminService {
     @Inject("logger") private logger: FastifyLoggerInstance
   ) {
     logger.info("Admin Service initialized...");
-  }
-
-  async updateAppConfig(data: AppConfigType) {
-    const checkExistingRecord = await this.prisma.appConfig.findUnique({
-      where: {
-        appName: "com.fnxl.bitflix",
-      },
-    });
-
-    if (!checkExistingRecord) {
-      return await this.prisma.appConfig.create({
-        data: {
-          appName: "com.fnxl.bitflix",
-          ...data,
-        },
-      });
-    } else {
-      return await this.prisma.appConfig.update({
-        where: {
-          appName: "com.fnxl.bitflix",
-        },
-        data: {
-          appName: "com.fnxl.bitflix",
-          ...data,
-        },
-      });
-    }
   }
 
   async createAdmin() {

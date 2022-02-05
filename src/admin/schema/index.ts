@@ -16,26 +16,3 @@ export const GenerateKeySchema = Type.Object({
 });
 
 export type GenerateKeyType = Static<typeof GenerateKeySchema>;
-
-export const AppConfigSchema = Type.Object({
-  latestVersion: Type.String(),
-  latestVersionCode: Nullable(Type.Integer()),
-  url: Type.String(),
-  releaseNotes: Nullable(Type.String()),
-});
-
-export type AppConfigType = Static<typeof AppConfigSchema>;
-
-export const AppConfigResponseSchema = Type.Object({
-  status: Type.String(),
-  message: Type.String(),
-  data: Type.Object({
-    appName: Type.String(),
-    latestVersion: Type.String(),
-    latestVersionCode: Nullable(Type.Integer()),
-    url: Type.String(),
-    releaseNotes: Nullable(Type.String()),
-  }),
-});
-
-export type AppConfigResponseType = Static<typeof AppConfigResponseSchema>;
