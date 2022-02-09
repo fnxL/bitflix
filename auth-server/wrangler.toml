@@ -1,17 +1,13 @@
-name = "auth-server-dev"
-type = "webpack"
-
-account_id = "00635589a7e41ac9736a417c77b9e364"
-workers_dev = true
-route = ""
-zone_id = ""
-compatibility_date = "2022-02-05"
-
-[vars]
-ENVIRONMENT = "development"
-DATABASE_URL = "postgres://postgres:admin@localhost:5432/bitflix"
-
-[env.production]
 name = "auth"
-[env.production.vars]
-ENVIRONMENT = "production"
+type = "javascript"
+zone_id = ""
+account_id = ""
+route = ""
+webpack_config = "webpack.config.js"
+workers_dev = true
+compatibility_date = "2022-02-09"
+
+[build]
+command = "npm run build"
+[build.upload]
+format = "service-worker"

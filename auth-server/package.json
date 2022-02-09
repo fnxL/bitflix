@@ -1,22 +1,24 @@
 {
-    "name": "auth-server",
-    "private": true,
-    "version": "1.0.0",
-    "description": "package for creating workers templates",
-    "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "format": "prettier --write '**/*.{js,css,json,md}'"
-    },
-    "author": "fnxL <ajaykanki18@gmail.com>",
-    "license": "ISC",
-    "devDependencies": {
-        "prettier": "^1.17.0",
-        "prisma": "^3.9.1"
-    },
-    "dependencies": {
-        "@prisma/client": "^3.9.1",
-        "itty-router": "^2.1.9",
-        "serverless-cloudflare-workers": "^1.2.0"
-    }
+  "name": "worker-typescript-template",
+  "version": "1.0.0",
+  "description": "Cloudflare worker TypeScript template",
+  "main": "dist/worker.js",
+  "scripts": {
+    "build": "webpack",
+    "format": "prettier --write  '*.{json,js}' 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
+    "lint": "eslint --max-warnings=0 src && prettier --check '*.{json,js}' 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
+    "test": "jest --config jestconfig.json --verbose"
+  },
+  "author": "author",
+  "license": "MIT OR Apache-2.0",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^3.0.0",
+    "@types/service-worker-mock": "^2.0.1",
+    "prettier": "^2.3.0",
+    "service-worker-mock": "^2.0.5",
+    "ts-loader": "^9.2.2",
+    "typescript": "^4.3.2",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0"
+  }
 }

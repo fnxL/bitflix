@@ -1,4 +1,4 @@
-node_modules/
-worker/
-.cargo-ok
-package-lock.json
+dist
+node_modules
+transpiled
+/.idea/
