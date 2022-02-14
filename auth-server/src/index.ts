@@ -1,23 +1,15 @@
-import { PrismaClient } from '@prisma/client'
 import { Router } from 'itty-router'
+import login from './login'
 
 const router = Router()
-const prisma = new PrismaClient()
 
-router.get(
-  '/',
-  async (request) =>
-    new Response(
-      JSON.stringify({
-        message: 'Hello :)',
-      }),
-      {
-        headers: {
-          'content-type': 'application/json',
-        },
-      },
-    ),
-)
+declare global {
+  const ACCESS_TOKEN_SECRET: string
+  const ACCESS_TOKEN_EXPIRY: string
+  const REFRESH_TOKEN_SECRET: string
+}
+
+router.post('/login', login)
 
 router.all('*', () => new Response('404, not found!', { status: 404 }))
 

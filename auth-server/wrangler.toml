@@ -1,7 +1,7 @@
 name = "auth"
 type = "javascript"
 zone_id = ""
-account_id = ""
+account_id = "00635589a7e41ac9736a417c77b9e364"
 route = ""
 webpack_config = "webpack.config.js"
 workers_dev = true
@@ -11,3 +11,12 @@ compatibility_date = "2022-02-09"
 command = "npm run build"
 [build.upload]
 format = "service-worker"
+
+[vars]
+DATABASE_URL="prisma://aws-eu-central-1.prisma-data.com/?api_key=AdsA_j9k3voR5oypn5QUfs9ZpHvMu5djSk5xibG8BmBX8ETcaC7Lhi4RC2rVo4j5"
+ACCESS_TOKEN_SECRET = "bbdbac6424979cf960a23272dc0e996dc5bb25e62a1a51de184febab35da7928ffd602513d46da7a5b0a7e085c0db28aa66db3328964008b2b1e7a9dfff03986"
+ACCESS_TOKEN_EXPIRY = "1"
+REFRESH_TOKEN_SECRET = "003a76f6d4b34dd66cd0fb47f85c44d4c6fc7f7c8a81725fe830e8864b532d02a8882a893fee53e2499d6b7bceebadcb36606bd436942f955d5240a7337dbe49"
+
+
+
